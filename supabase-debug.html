@@ -83,6 +83,7 @@
             <button onclick="runFullDiagnostic()">Run Full Diagnostic</button>
             <button onclick="testAuth()">Test Authentication</button>
             <button onclick="clearLog()">Clear Log</button>
+            <button onclick="window.location.href='simple-test.html'">Simple Test</button>
             <button onclick="window.location.href='login.html'">Go to Login</button>
         </div>
         
@@ -92,9 +93,63 @@
         </div>
     </div>
 
-    <!-- Load Supabase -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="js/supabase-config.js"></script>
+    <!-- Load Supabase - Try multiple sources with fallbacks -->
+    <script>
+        let supabaseLoaded = false;
+        
+        function loadSupabaseScript() {
+            const sources = [
+                'https://unpkg.com/@supabase/supabase-js@2',
+                'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2'
+            ];
+            
+            let currentIndex = 0;
+            
+            function tryNextSource() {
+                if (currentIndex >= sources.length) {
+                    console.error('All Supabase sources failed');
+                    document.getElementById('script-text').textContent = '❌ All Supabase sources failed';
+                    return;
+                }
+                
+                console.log(`Trying to load Supabase from: ${sources[currentIndex]}`);
+                const script = document.createElement('script');
+                script.src = sources[currentIndex];
+                
+                script.onload = function() {
+                    console.log(`✅ Supabase loaded from: ${sources[currentIndex]}`);
+                    supabaseLoaded = true;
+                    document.getElementById('script-text').textContent = `✅ Loaded from: ${sources[currentIndex]}`;
+                    loadConfig();
+                };
+                
+                script.onerror = function() {
+                    console.log(`❌ Failed to load from: ${sources[currentIndex]}`);
+                    currentIndex++;
+                    tryNextSource();
+                };
+                
+                document.head.appendChild(script);
+            }
+            
+            tryNextSource();
+        }
+        
+        function loadConfig() {
+            const configScript = document.createElement('script');
+            configScript.src = 'js/supabase-config.js';
+            configScript.onload = function() {
+                console.log('✅ Config script loaded');
+            };
+            configScript.onerror = function() {
+                console.error('❌ Config script failed to load');
+            };
+            document.head.appendChild(configScript);
+        }
+        
+        // Start loading
+        loadSupabaseScript();
+    </script>
 
     <script>
         let logContainer = document.getElementById('console-log');
@@ -121,13 +176,27 @@
         async function checkScriptLoading() {
             log('Checking script loading...');
             
-            if (typeof createClient !== 'undefined') {
+            // Wait for script to load with timeout
+            let attempts = 0;
+            const maxAttempts = 100; // 10 seconds
+            
+            while (typeof supabase === 'undefined' && attempts < maxAttempts) {
+                await new Promise(resolve => setTimeout(resolve, 100));
+                attempts++;
+            }
+            
+            if (typeof supabase !== 'undefined') {
                 updateStatus('script-status', 'success', '✅ Supabase script loaded successfully');
-                log('✅ createClient is available');
+                log('✅ supabase is available');
+                if (typeof supabase.createClient !== 'undefined') {
+                    log('✅ supabase.createClient is available');
+                } else {
+                    log('⚠️ supabase.createClient is not available');
+                }
                 return true;
             } else {
-                updateStatus('script-status', 'error', '❌ Supabase script not loaded');
-                log('❌ createClient is not available');
+                updateStatus('script-status', 'error', '❌ Supabase script not loaded after 10 seconds');
+                log('❌ supabase is not available after waiting');
                 return false;
             }
         }
@@ -223,10 +292,46 @@
             }
         }
         
+        async function testNetworkConnectivity() {
+            log('Testing network connectivity...');
+            
+            const urls = [
+                'https://unpkg.com/@supabase/supabase-js@2',
+                'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2',
+                'https://skomlyzhbhnqvfncgxhx.supabase.co'
+            ];
+            
+            let allGood = true;
+            
+            for (const url of urls) {
+                try {
+                    const response = await fetch(url, { method: 'HEAD' });
+                    if (response.ok) {
+                        log(`✅ ${url} - OK`);
+                    } else {
+                        log(`❌ ${url} - Error ${response.status}`);
+                        allGood = false;
+                    }
+                } catch (error) {
+                    log(`❌ ${url} - Failed: ${error.message}`);
+                    allGood = false;
+                }
+            }
+            
+            if (allGood) {
+                log('✅ Network connectivity OK');
+            } else {
+                log('❌ Network issues detected');
+            }
+            
+            return allGood;
+        }
+        
         async function runFullDiagnostic() {
             log('Running full diagnostic...');
             clearLog();
             
+            await testNetworkConnectivity();
             await checkScriptLoading();
             await checkConfiguration();
             await checkClientInitialization();
@@ -237,7 +342,10 @@
         
         // Run diagnostic when page loads
         document.addEventListener('DOMContentLoaded', async function() {
-            log('Page loaded, starting diagnostic...');
+            log('Page loaded, waiting for scripts to load...');
+            // Wait a bit for scripts to load
+            await new Promise(resolve => setTimeout(resolve, 2000));
+            log('Starting diagnostic...');
             await runFullDiagnostic();
         });
     </script>

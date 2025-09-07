@@ -565,9 +565,70 @@
         <p>&copy; 2024 Fitness Tracker. All rights reserved. | Stay healthy and motivated!</p>
     </footer>
 
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="js/supabase-config.js"></script>
-    <script src="js/script.js"></script>
+    <script>
+        // Load Supabase with fallbacks
+        function loadSupabaseScript() {
+            const sources = [
+                'https://unpkg.com/@supabase/supabase-js@2',
+                'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2'
+            ];
+            
+            let currentIndex = 0;
+            
+            function tryNextSource() {
+                if (currentIndex >= sources.length) {
+                    console.error('All Supabase sources failed');
+                    return;
+                }
+                
+                const script = document.createElement('script');
+                script.src = sources[currentIndex];
+                
+                script.onload = function() {
+                    console.log(`Supabase loaded from: ${sources[currentIndex]}`);
+                    loadConfig();
+                };
+                
+                script.onerror = function() {
+                    console.log(`Failed to load from: ${sources[currentIndex]}`);
+                    currentIndex++;
+                    tryNextSource();
+                };
+                
+                document.head.appendChild(script);
+            }
+            
+            tryNextSource();
+        }
+        
+        function loadConfig() {
+            const configScript = document.createElement('script');
+            configScript.src = 'js/supabase-config.js';
+            configScript.onload = function() {
+                console.log('Config script loaded');
+                loadMainScript();
+            };
+            configScript.onerror = function() {
+                console.error('Config script failed to load');
+            };
+            document.head.appendChild(configScript);
+        }
+        
+        function loadMainScript() {
+            const mainScript = document.createElement('script');
+            mainScript.src = 'js/script.js';
+            mainScript.onload = function() {
+                console.log('Main script loaded');
+            };
+            mainScript.onerror = function() {
+                console.error('Main script failed to load');
+            };
+            document.head.appendChild(mainScript);
+        }
+        
+        // Start loading
+        loadSupabaseScript();
+    </script>
     
     <!-- Authentication Check -->
     <script>

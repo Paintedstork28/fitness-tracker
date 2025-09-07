@@ -5,8 +5,58 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sign In - Fitness Tracker</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="js/supabase-config.js"></script>
+    <script>
+        // Load Supabase with fallbacks
+        function loadSupabaseScript() {
+            const sources = [
+                'https://unpkg.com/@supabase/supabase-js@2',
+                'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2'
+            ];
+            
+            let currentIndex = 0;
+            
+            function tryNextSource() {
+                if (currentIndex >= sources.length) {
+                    console.error('All Supabase sources failed');
+                    showError('Failed to load Supabase. Please check your internet connection.');
+                    return;
+                }
+                
+                const script = document.createElement('script');
+                script.src = sources[currentIndex];
+                
+                script.onload = function() {
+                    console.log(`Supabase loaded from: ${sources[currentIndex]}`);
+                    loadConfig();
+                };
+                
+                script.onerror = function() {
+                    console.log(`Failed to load from: ${sources[currentIndex]}`);
+                    currentIndex++;
+                    tryNextSource();
+                };
+                
+                document.head.appendChild(script);
+            }
+            
+            tryNextSource();
+        }
+        
+        function loadConfig() {
+            const configScript = document.createElement('script');
+            configScript.src = 'js/supabase-config.js';
+            configScript.onload = function() {
+                console.log('Config script loaded');
+            };
+            configScript.onerror = function() {
+                console.error('Config script failed to load');
+            };
+            document.head.appendChild(configScript);
+        }
+        
+        // Start loading
+        loadSupabaseScript();
+    </script>
     <style>
         .login-container {
             min-height: 100vh;

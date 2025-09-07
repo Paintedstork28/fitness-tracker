@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple Supabase Test</title>
+</head>
+<body>
+    <h1>Simple Supabase Test</h1>
+    <div id="status">Loading...</div>
+    
+    <script>
+        function updateStatus(message) {
+            document.getElementById('status').innerHTML += '<br>' + message;
+            console.log(message);
+        }
+        
+        updateStatus('Starting test...');
+        
+        // Test 1: Try different Supabase CDN sources
+        const sources = [
+            'https://unpkg.com/@supabase/supabase-js@2/dist/main/index.umd.js',
+            'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/main/index.umd.js',
+            'https://unpkg.com/@supabase/supabase-js@2',
+            'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2'
+        ];
+        
+        let currentIndex = 0;
+        
+        function tryNextSource() {
+            if (currentIndex >= sources.length) {
+                updateStatus('❌ All sources failed');
+                return;
+            }
+            
+            updateStatus(`Trying source ${currentIndex + 1}: ${sources[currentIndex]}`);
+            
+            const script = document.createElement('script');
+            script.src = sources[currentIndex];
+            
+            script.onload = function() {
+                updateStatus('✅ Script loaded successfully');
+                
+                // Test 2: Check if createClient is available
+                if (typeof createClient !== 'undefined') {
+                    updateStatus('✅ createClient is available globally');
+                    
+                    // Test 3: Try to create a client
+                    try {
+                        const client = createClient('https://test.supabase.co', 'test-key');
+                        updateStatus('✅ Client created successfully');
+                    } catch (error) {
+                        updateStatus('❌ Client creation failed: ' + error.message);
+                    }
+                } else if (typeof supabase !== 'undefined' && typeof supabase.createClient !== 'undefined') {
+                    updateStatus('✅ supabase.createClient is available');
+                    
+                    // Test 3: Try to create a client
+                    try {
+                        const client = supabase.createClient('https://test.supabase.co', 'test-key');
+                        updateStatus('✅ Client created successfully via supabase.createClient');
+                    } catch (error) {
+                        updateStatus('❌ Client creation failed: ' + error.message);
+                    }
+                } else {
+                    updateStatus('❌ createClient is not available');
+                    updateStatus('Available globals: ' + Object.keys(window).filter(k => k.includes('supabase') || k.includes('Supabase')).join(', '));
+                    
+                    if (typeof supabase !== 'undefined') {
+                        updateStatus('Supabase object keys: ' + Object.keys(supabase).join(', '));
+                    }
+                    
+                    // Try next source
+                    currentIndex++;
+                    if (currentIndex < sources.length) {
+                        updateStatus('Trying next source...');
+                        tryNextSource();
+                    }
+                }
+            };
+            
+            script.onerror = function() {
+                updateStatus(`❌ Source ${currentIndex + 1} failed to load`);
+                currentIndex++;
+                tryNextSource();
+            };
+            
+            document.head.appendChild(script);
+        }
+        
+        tryNextSource();
+    </script>
+</body>
+</html>
