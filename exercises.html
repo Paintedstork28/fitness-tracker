@@ -513,5 +513,53 @@
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
     <script src="js/supabase-config.js"></script>
     <script src="js/script.js"></script>
+    
+    <!-- Authentication Check -->
+    <script>
+        // Check authentication on page load
+        document.addEventListener('DOMContentLoaded', async function() {
+            try {
+                const user = await SupabaseAuth.getCurrentUser();
+                if (!user) {
+                    console.log('No user found, redirecting to login');
+                    window.location.href = 'login.html';
+                    return;
+                }
+                console.log('User authenticated:', user);
+                updateUserDisplay(user);
+            } catch (error) {
+                console.error('Auth check failed:', error);
+                window.location.href = 'login.html';
+            }
+        });
+        
+        // Function to update user display
+        function updateUserDisplay(user) {
+            const nav = document.querySelector('.nav-links');
+            if (nav && user) {
+                const userMenu = document.createElement('li');
+                userMenu.innerHTML = `
+                    <div style="display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem 1rem; color: var(--text-secondary);">
+                        <i class="fas fa-user-circle"></i>
+                        <span>${user.email || 'User'}</span>
+                        <button onclick="logout()" style="background: none; border: none; color: var(--danger); cursor: pointer; padding: 0.25rem;">
+                            <i class="fas fa-sign-out-alt"></i>
+                        </button>
+                    </div>
+                `;
+                nav.appendChild(userMenu);
+            }
+        }
+        
+        // Logout function
+        async function logout() {
+            try {
+                await SupabaseAuth.signOut();
+                window.location.href = 'login.html';
+            } catch (error) {
+                console.error('Logout failed:', error);
+            }
+        }
+    </script>
 </body>
 </html>
