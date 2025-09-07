@@ -82,32 +82,6 @@ ALTER TABLE sleep ENABLE ROW LEVEL SECURITY;
 ALTER TABLE goals ENABLE ROW LEVEL SECURITY;
 ALTER TABLE user_profiles ENABLE ROW LEVEL SECURITY;
 
--- Drop existing policies (if any)
-DROP POLICY IF EXISTS "Users can manage their exercises" ON exercises;
-DROP POLICY IF EXISTS "Users can insert exercises" ON exercises;
-DROP POLICY IF EXISTS "Users can update exercises" ON exercises;
-DROP POLICY IF EXISTS "Users can delete exercises" ON exercises;
-
-DROP POLICY IF EXISTS "Users can manage their nutrition" ON nutrition;
-DROP POLICY IF EXISTS "Users can insert nutrition" ON nutrition;
-DROP POLICY IF EXISTS "Users can update nutrition" ON nutrition;
-DROP POLICY IF EXISTS "Users can delete nutrition" ON nutrition;
-
-DROP POLICY IF EXISTS "Users can manage their sleep" ON sleep;
-DROP POLICY IF EXISTS "Users can insert sleep" ON sleep;
-DROP POLICY IF EXISTS "Users can update sleep" ON sleep;
-DROP POLICY IF EXISTS "Users can delete sleep" ON sleep;
-
-DROP POLICY IF EXISTS "Users can manage their goals" ON goals;
-DROP POLICY IF EXISTS "Users can insert goals" ON goals;
-DROP POLICY IF EXISTS "Users can update goals" ON goals;
-DROP POLICY IF EXISTS "Users can delete goals" ON goals;
-
-DROP POLICY IF EXISTS "Users can manage their profile" ON user_profiles;
-DROP POLICY IF EXISTS "Users can insert profile" ON user_profiles;
-DROP POLICY IF EXISTS "Users can update profile" ON user_profiles;
-DROP POLICY IF EXISTS "Users can delete profile" ON user_profiles;
-
 -- RLS policies for exercises
 CREATE POLICY "Users can manage their exercises" ON exercises
   FOR SELECT USING (auth.uid() = user_id);
@@ -177,30 +151,18 @@ BEGIN
 END;
 $$ LANGUAGE 'plpgsql';
 
--- Drop triggers if they already exist
-DROP TRIGGER IF EXISTS trigger_update_exercises_updated_at ON exercises;
-DROP TRIGGER IF EXISTS trigger_update_nutrition_updated_at ON nutrition;
-DROP TRIGGER IF EXISTS trigger_update_sleep_updated_at ON sleep;
-DROP TRIGGER IF EXISTS trigger_update_goals_updated_at ON goals;
-DROP TRIGGER IF EXISTS trigger_update_user_profiles_updated_at ON user_profiles;
-
 -- Triggers for updated_at
-CREATE TRIGGER trigger_update_exercises_updated_at
-BEFORE UPDATE ON exercises
-FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+CREATE TRIGGER trigger_update_exercises_updated_at BEFORE UPDATE ON exercises
+  FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
-CREATE TRIGGER trigger_update_nutrition_updated_at
-BEFORE UPDATE ON nutrition
-FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+CREATE TRIGGER trigger_update_nutrition_updated_at BEFORE UPDATE ON nutrition
+  FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
-CREATE TRIGGER trigger_update_sleep_updated_at
-BEFORE UPDATE ON sleep
-FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+CREATE TRIGGER trigger_update_sleep_updated_at BEFORE UPDATE ON sleep
+  FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
-CREATE TRIGGER trigger_update_goals_updated_at
-BEFORE UPDATE ON goals
-FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+CREATE TRIGGER trigger_update_goals_updated_at BEFORE UPDATE ON goals
+  FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
-CREATE TRIGGER trigger_update_user_profiles_updated_at
-BEFORE UPDATE ON user_profiles
-FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+CREATE TRIGGER trigger_update_user_profiles_updated_at BEFORE UPDATE ON user_profiles
+  FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();

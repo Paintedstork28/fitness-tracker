@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CSS Test - Fitness Tracker</title>
+    <style>
+        /* Inline CSS test to verify if external CSS is the issue */
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            margin: 0;
+            padding: 2rem;
+            min-height: 100vh;
+        }
+        .test-card {
+            background: white;
+            color: #1f2937;
+            padding: 2rem;
+            border-radius: 1rem;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            max-width: 500px;
+            margin: 0 auto;
+            text-align: center;
+        }
+        .test-button {
+            background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+            color: white;
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            margin: 1rem;
+            transition: transform 0.2s ease;
+        }
+        .test-button:hover {
+            transform: translateY(-2px);
+        }
+        .status {
+            padding: 1rem;
+            border-radius: 0.5rem;
+            margin: 1rem 0;
+        }
+        .success {
+            background: rgba(16, 185, 129, 0.1);
+            color: #059669;
+            border: 1px solid #10b981;
+        }
+        .error {
+            background: rgba(239, 68, 68, 0.1);
+            color: #dc2626;
+            border: 1px solid #ef4444;
+        }
+    </style>
+    <link rel="stylesheet" href="css/style.css?v=3">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="test-card">
+        <h1><i class="fas fa-dumbbell"></i> CSS Loading Test</h1>
+        
+        <div id="css-status" class="status error">
+            <i class="fas fa-exclamation-triangle"></i> External CSS not loaded
+        </div>
+        
+        <p>This page tests if your CSS file is loading correctly.</p>
+        
+        <button class="test-button" onclick="testCSS()">
+            <i class="fas fa-check"></i> Test CSS Loading
+        </button>
+        
+        <div id="test-results"></div>
+        
+        <h3>What you should see:</h3>
+        <ul style="text-align: left;">
+            <li>✅ This page should have a gradient background</li>
+            <li>✅ The card should be white with rounded corners</li>
+            <li>✅ Buttons should be blue with hover effects</li>
+            <li>✅ Icons should be visible</li>
+        </ul>
+        
+        <h3>If you see styling:</h3>
+        <p>✅ CSS is working! The issue is with the main site.</p>
+        
+        <h3>If you see plain text:</h3>
+        <p>❌ CSS is not loading. Check file paths and GitHub Pages settings.</p>
+        
+        <a href="index.html" style="color: #6366f1; text-decoration: none;">
+            <i class="fas fa-arrow-left"></i> Back to Main Site
+        </a>
+    </div>
+
+    <script>
+        function testCSS() {
+            const results = document.getElementById('test-results');
+            const status = document.getElementById('css-status');
+            
+            // Test if CSS variables are available
+            const testElement = document.createElement('div');
+            testElement.style.setProperty('--primary', '#6366f1');
+            const primaryColor = getComputedStyle(testElement).getPropertyValue('--primary');
+            
+            // Test if external CSS is loaded by checking for specific styles
+            const bodyStyles = getComputedStyle(document.body);
+            const hasGradient = bodyStyles.background.includes('gradient');
+            
+            let html = '<h3>Test Results:</h3>';
+            
+            if (hasGradient) {
+                html += '<div class="status success">✅ External CSS is loading correctly!</div>';
+                status.className = 'status success';
+                status.innerHTML = '<i class="fas fa-check"></i> External CSS loaded successfully';
+            } else {
+                html += '<div class="status error">❌ External CSS is not loading</div>';
+                html += '<p><strong>Possible issues:</strong></p>';
+                html += '<ul style="text-align: left;">';
+                html += '<li>CSS file path is incorrect</li>';
+                html += '<li>GitHub Pages is not serving the CSS file</li>';
+                html += '<li>File permissions issue</li>';
+                html += '<li>Browser cache issue</li>';
+                html += '</ul>';
+            }
+            
+            results.innerHTML = html;
+        }
+        
+        // Auto-test on page load
+        window.addEventListener('load', function() {
+            setTimeout(testCSS, 1000);
+        });
+    </script>
+</body>
+</html>

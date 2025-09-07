@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login Test - Fitness Tracker</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+        
+        .login-card {
+            background: white;
+            border-radius: 1.5rem;
+            padding: 3rem;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            max-width: 400px;
+            width: 100%;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .login-logo {
+            font-size: 4rem;
+            color: #6366f1;
+            margin-bottom: 1rem;
+        }
+        
+        .login-title {
+            font-size: 2rem;
+            color: #1f2937;
+            margin-bottom: 0.5rem;
+        }
+        
+        .login-subtitle {
+            color: #6b7280;
+            margin-bottom: 2rem;
+            line-height: 1.6;
+        }
+        
+        .google-signin-btn {
+            width: 100%;
+            padding: 1rem;
+            border: 2px solid #db4437;
+            border-radius: 0.5rem;
+            background: white;
+            color: #db4437;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+        }
+        
+        .google-signin-btn:hover {
+            background: #db4437;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+        
+        .google-signin-btn i {
+            font-size: 1.25rem;
+        }
+        
+        .loading {
+            display: none;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            color: #6366f1;
+            font-weight: 600;
+        }
+        
+        .loading.show {
+            display: flex;
+        }
+        
+        .error-message {
+            background: rgba(239, 68, 68, 0.1);
+            color: #dc2626;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            margin-bottom: 1rem;
+            border-left: 4px solid #ef4444;
+            display: none;
+        }
+        
+        .error-message.show {
+            display: block;
+        }
+        
+        .success-message {
+            background: rgba(16, 185, 129, 0.1);
+            color: #059669;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            margin-bottom: 1rem;
+            border-left: 4px solid #10b981;
+            display: none;
+        }
+        
+        .success-message.show {
+            display: block;
+        }
+        
+        .debug-info {
+            background: #f3f4f6;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            margin-top: 1rem;
+            text-align: left;
+            font-size: 0.875rem;
+            color: #374151;
+        }
+        
+        .debug-info h4 {
+            margin-bottom: 0.5rem;
+            color: #1f2937;
+        }
+        
+        .debug-info ul {
+            margin-left: 1rem;
+        }
+        
+        .debug-info li {
+            margin-bottom: 0.25rem;
+        }
+    </style>
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <script src="js/supabase-config.js"></script>
+</head>
+<body>
+    <div class="login-card">
+        <div class="login-logo">
+            <i class="fas fa-dumbbell"></i>
+        </div>
+        
+        <h1 class="login-title">Fitness Tracker Login Test</h1>
+        <p class="login-subtitle">
+            Test Google OAuth authentication with Supabase
+        </p>
+        
+        <div class="error-message" id="error-message">
+            <i class="fas fa-exclamation-triangle"></i>
+            <span id="error-text">An error occurred during sign in. Please try again.</span>
+        </div>
+        
+        <div class="success-message" id="success-message">
+            <i class="fas fa-check"></i>
+            <span id="success-text">Success! Redirecting...</span>
+        </div>
+        
+        <button class="google-signin-btn" onclick="signInWithGoogle()">
+            <i class="fab fa-google"></i>
+            Sign in with Google
+        </button>
+        
+        <div class="loading" id="loading">
+            <i class="fas fa-spinner fa-spin"></i>
+            Signing you in...
+        </div>
+        
+        <div class="debug-info">
+            <h4>Debug Information:</h4>
+            <ul>
+                <li>✅ Supabase URL: <span id="supabase-url">Loading...</span></li>
+                <li>✅ Supabase Client: <span id="supabase-client">Loading...</span></li>
+                <li>✅ Google OAuth: <span id="google-oauth">Ready</span></li>
+            </ul>
+        </div>
+        
+        <div style="margin-top: 1rem;">
+            <a href="index-fallback.html" style="color: #6366f1; text-decoration: none;">
+                <i class="fas fa-arrow-left"></i> Back to Dashboard
+            </a>
+        </div>
+    </div>
+
+    <script>
+        // Debug information
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('supabase-url').textContent = SUPABASE_URL;
+            document.getElementById('supabase-client').textContent = supabase ? 'Initialized' : 'Failed';
+        });
+        
+        // Sign in with Google using Supabase
+        async function signInWithGoogle() {
+            console.log('Sign in with Google clicked');
+            showLoading(true);
+            hideMessages();
+            
+            try {
+                console.log('Attempting Google sign in...');
+                console.log('Supabase URL:', SUPABASE_URL);
+                console.log('Supabase client:', supabase);
+                
+                const { data, error } = await SupabaseAuth.signInWithGoogle();
+                
+                if (error) {
+                    console.error('Supabase auth error:', error);
+                    throw error;
+                }
+                
+                console.log('Google sign in successful:', data);
+                showSuccess('Google sign in successful! Redirecting...');
+                
+                // The redirect will happen automatically
+                setTimeout(() => {
+                    window.location.href = 'index-fallback.html';
+                }, 2000);
+                
+            } catch (error) {
+                console.error('Error signing in with Google:', error);
+                showError('Failed to sign in. Error: ' + error.message);
+                showLoading(false);
+            }
+        }
+        
+        // Show loading state
+        function showLoading(show) {
+            const loading = document.getElementById('loading');
+            const signinBtn = document.querySelector('.google-signin-btn');
+            
+            if (show) {
+                loading.classList.add('show');
+                signinBtn.style.display = 'none';
+            } else {
+                loading.classList.remove('show');
+                signinBtn.style.display = 'flex';
+            }
+        }
+        
+        // Show error message
+        function showError(message) {
+            const errorDiv = document.getElementById('error-message');
+            const errorText = document.getElementById('error-text');
+            
+            errorText.textContent = message;
+            errorDiv.classList.add('show');
+            
+            // Auto-hide after 10 seconds
+            setTimeout(() => {
+                hideMessages();
+            }, 10000);
+        }
+        
+        // Show success message
+        function showSuccess(message) {
+            const successDiv = document.getElementById('success-message');
+            const successText = document.getElementById('success-text');
+            
+            successText.textContent = message;
+            successDiv.classList.add('show');
+        }
+        
+        // Hide all messages
+        function hideMessages() {
+            document.getElementById('error-message').classList.remove('show');
+            document.getElementById('success-message').classList.remove('show');
+        }
+        
+        // Check if user is already logged in
+        async function checkExistingAuth() {
+            try {
+                const user = await SupabaseAuth.getCurrentUser();
+                
+                if (user) {
+                    console.log('User already logged in:', user);
+                    showSuccess('Already logged in! Redirecting...');
+                    setTimeout(() => {
+                        window.location.href = 'index-fallback.html';
+                    }, 1000);
+                    return;
+                }
+            } catch (error) {
+                console.error('Error checking existing auth:', error);
+            }
+        }
+        
+        // Initialize when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            checkExistingAuth();
+        });
+    </script>
+</body>
+</html>
