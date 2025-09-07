@@ -5,503 +5,210 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sign In - Fitness Tracker</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <script>
-        // Global flag to track loading state
-        window.supabaseLoading = true;
-        window.supabaseConfigLoaded = false;
-        
-        // Load Supabase with fallbacks
-        function loadSupabaseScript() {
-            const sources = [
-                'https://unpkg.com/@supabase/supabase-js@2',
-                'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2'
-            ];
-            
-            let currentIndex = 0;
-            
-            function tryNextSource() {
-                if (currentIndex >= sources.length) {
-                    console.error('All Supabase sources failed');
-                    window.supabaseLoading = false;
-                    showError('Failed to load Supabase. Please check your internet connection.');
-                    return;
-                }
-                
-                console.log(`Loading Supabase from: ${sources[currentIndex]}`);
-                const script = document.createElement('script');
-                script.src = sources[currentIndex];
-                
-                script.onload = function() {
-                    console.log(`✅ Supabase loaded from: ${sources[currentIndex]}`);
-                    window.supabaseLoading = false;
-                    loadConfig();
-                };
-                
-                script.onerror = function() {
-                    console.log(`❌ Failed to load from: ${sources[currentIndex]}`);
-                    currentIndex++;
-                    tryNextSource();
-                };
-                
-                document.head.appendChild(script);
-            }
-            
-            tryNextSource();
-        }
-        
-        function loadConfig() {
-            console.log('Loading configuration script...');
-            const configScript = document.createElement('script');
-            configScript.src = 'js/supabase-config.js?v=' + Date.now(); // Cache busting
-            configScript.onload = function() {
-                console.log('✅ Config script loaded');
-                window.supabaseConfigLoaded = true;
-                // Wait a bit more for initialization
-                setTimeout(() => {
-                    console.log('SupabaseAuth available:', typeof SupabaseAuth !== 'undefined');
-                }, 1000);
-            };
-            configScript.onerror = function() {
-                console.error('❌ Config script failed to load');
-                window.supabaseConfigLoaded = false;
-            };
-            document.head.appendChild(configScript);
-        }
-        
-        // Update button state based on Supabase readiness
-        function updateButtonState() {
-            const btn = document.getElementById('signin-btn');
-            const text = document.getElementById('signin-text');
-            
-            if (window.supabaseConfigLoaded && typeof SupabaseAuth !== 'undefined') {
-                btn.disabled = false;
-                text.textContent = 'Sign in with Google';
-                btn.style.opacity = '1';
-            } else {
-                btn.disabled = true;
-                text.textContent = 'Loading...';
-                btn.style.opacity = '0.6';
-            }
-        }
-        
-        // Check button state periodically
-        setInterval(updateButtonState, 500);
-        
-        // Start loading
-        loadSupabaseScript();
-    </script>
     <style>
-        .login-container {
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            margin: 0;
+            padding: 0;
             min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
-            background: var(--gradient-primary);
-            padding: 2rem;
         }
         
-        .login-card {
+        .login-container {
             background: white;
-            border-radius: 1rem;
             padding: 3rem;
-            box-shadow: var(--shadow-lg);
+            border-radius: 1rem;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
             text-align: center;
             max-width: 400px;
-            width: 100%;
+            width: 90%;
         }
         
-        .login-logo {
+        .logo {
             font-size: 3rem;
-            color: var(--primary-color);
+            color: #6366f1;
             margin-bottom: 1rem;
         }
         
-        .login-title {
-            font-size: 2rem;
-            color: var(--text-primary);
-            margin-bottom: 0.5rem;
+        h1 {
+            color: #1f2937;
+            margin-bottom: 1rem;
         }
         
-        .login-subtitle {
-            color: var(--text-secondary);
+        p {
+            color: #6b7280;
             margin-bottom: 2rem;
-            line-height: 1.6;
         }
         
-        .google-signin-btn {
+        .google-btn {
             width: 100%;
             padding: 1rem;
-            border: 2px solid #db4437;
+            background: #db4437;
+            color: white;
+            border: none;
             border-radius: 0.5rem;
-            background: white;
-            color: #db4437;
             font-size: 1rem;
             font-weight: 600;
             cursor: pointer;
-            transition: all 0.3s ease;
             display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 0.75rem;
-            margin-bottom: 1rem;
-        }
-        
-        .google-signin-btn:hover:not(:disabled) {
-            background: #db4437;
-            color: white;
-            transform: translateY(-2px);
-            box-shadow: var(--shadow);
-        }
-        
-        .google-signin-btn:disabled {
-            cursor: not-allowed;
-            opacity: 0.6;
-        }
-        
-        .google-signin-btn i {
-            font-size: 1.2rem;
-        }
-        
-        .divider {
-            display: flex;
-            align-items: center;
-            margin: 2rem 0;
-            color: var(--text-secondary);
-        }
-        
-        .divider::before,
-        .divider::after {
-            content: '';
-            flex: 1;
-            height: 1px;
-            background: var(--border-color);
-        }
-        
-        .divider span {
-            padding: 0 1rem;
-            background: white;
-        }
-        
-        .features-preview {
-            margin-top: 2rem;
-            text-align: left;
-        }
-        
-        .features-preview h3 {
-            color: var(--text-primary);
-            margin-bottom: 1rem;
-            text-align: center;
-        }
-        
-        .feature-item {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            margin-bottom: 0.75rem;
-            color: var(--text-secondary);
-        }
-        
-        .feature-item i {
-            color: var(--success-color);
-            width: 20px;
-        }
-        
-        .loading {
-            display: none;
             align-items: center;
             justify-content: center;
             gap: 0.5rem;
-            color: var(--primary-color);
-            font-weight: 600;
+            transition: background 0.3s;
         }
         
-        .loading.show {
-            display: flex;
+        .google-btn:hover {
+            background: #c23321;
         }
         
-        .error-message {
-            background: #fee2e2;
-            color: #991b1b;
+        .google-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        
+        .status {
+            margin-top: 1rem;
             padding: 1rem;
             border-radius: 0.5rem;
-            margin-bottom: 1rem;
-            border-left: 4px solid var(--danger-color);
             display: none;
         }
         
-        .error-message.show {
-            display: block;
+        .status.error {
+            background: #fee2e2;
+            color: #991b1b;
+            border: 1px solid #fecaca;
         }
         
-        @media (max-width: 480px) {
-            .login-container {
-                padding: 1rem;
-            }
-            
-            .login-card {
-                padding: 2rem;
-            }
-            
-            .login-title {
-                font-size: 1.5rem;
-            }
+        .status.success {
+            background: #d1fae5;
+            color: #065f46;
+            border: 1px solid #a7f3d0;
+        }
+        
+        .status.info {
+            background: #dbeafe;
+            color: #1e40af;
+            border: 1px solid #93c5fd;
         }
     </style>
 </head>
 <body>
     <div class="login-container">
-        <div class="login-card">
-            <div class="login-logo">
-                <i class="fas fa-dumbbell"></i>
-            </div>
-            
-            <h1 class="login-title">Welcome to Fitness Tracker</h1>
-            <p class="login-subtitle">
-                Sign in with your Google account to start tracking your fitness journey and achieve your health goals.
-            </p>
-            
-            <div class="error-message" id="error-message">
-                <i class="fas fa-exclamation-triangle"></i>
-                <span id="error-text">An error occurred during sign in. Please try again.</span>
-            </div>
-            
-            <button class="google-signin-btn" onclick="signInWithGoogle()" id="signin-btn">
-                <i class="fab fa-google"></i>
-                <span id="signin-text">Sign in with Google</span>
-            </button>
-            
-            <div class="loading" id="loading">
-                <i class="fas fa-spinner fa-spin"></i>
-                Signing you in...
-            </div>
-            
-            <div class="divider">
-                <span>What you'll get</span>
-            </div>
-            
-            <div class="features-preview">
-                <h3>Premium Features</h3>
-                <div class="feature-item">
-                    <i class="fas fa-check"></i>
-                    <span>Complete fitness tracking dashboard</span>
-                </div>
-                <div class="feature-item">
-                    <i class="fas fa-check"></i>
-                    <span>Exercise logging and progress charts</span>
-                </div>
-                <div class="feature-item">
-                    <i class="fas fa-check"></i>
-                    <span>Nutrition monitoring with macro tracking</span>
-                </div>
-                <div class="feature-item">
-                    <i class="fas fa-check"></i>
-                    <span>Sleep pattern analysis</span>
-                </div>
-                <div class="feature-item">
-                    <i class="fas fa-check"></i>
-                    <span>Personalized goal setting and tracking</span>
-                </div>
-                <div class="feature-item">
-                    <i class="fas fa-check"></i>
-                    <span>Data synchronization across devices</span>
-                </div>
-            </div>
+        <div class="logo">
+            <i class="fas fa-dumbbell"></i>
         </div>
+        
+        <h1>Fitness Tracker</h1>
+        <p>Sign in with your Google account to start tracking your fitness journey.</p>
+        
+        <button class="google-btn" id="signin-btn" onclick="signInWithGoogle()">
+            <i class="fab fa-google"></i>
+            Sign in with Google
+        </button>
+        
+        <div class="status" id="status"></div>
     </div>
 
+    <!-- Load Supabase UMD build -->
+    <script src="https://unpkg.com/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+    
     <script>
-        // Wait for Supabase to be ready
-        async function waitForSupabase() {
-            let attempts = 0;
-            const maxAttempts = 50; // 5 seconds
-            
-            while (attempts < maxAttempts) {
-                if (window.supabaseConfigLoaded && typeof SupabaseAuth !== 'undefined') {
-                    console.log('✅ Supabase is ready');
-                    return true;
-                }
-                await new Promise(resolve => setTimeout(resolve, 100));
-                attempts++;
-            }
-            
-            console.log('❌ Supabase not ready after 5 seconds');
-            return false;
+        // Configuration
+        const SUPABASE_URL = 'https://skomlyzhbhnqvfncgxhx.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNrb21seXpoYmhucXZmbmNneGh4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTcyMzA1NzMsImV4cCI6MjA3MjgwNjU3M30.zlh95D-DZOA3adH5z32ae5u0bmGtD45MBzPkIIu2UgA';
+        
+        let supabase = null;
+        let isReady = false;
+        
+        // Show status message
+        function showStatus(message, type = 'info') {
+            const status = document.getElementById('status');
+            status.textContent = message;
+            status.className = `status ${type}`;
+            status.style.display = 'block';
         }
         
-        // Sign in with Google using Supabase
+        // Hide status message
+        function hideStatus() {
+            document.getElementById('status').style.display = 'none';
+        }
+        
+        // Initialize Supabase
+        function initSupabase() {
+            try {
+                if (typeof window.supabase === 'undefined') {
+                    throw new Error('Supabase script not loaded');
+                }
+                
+                supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+                isReady = true;
+                
+                showStatus('✅ Ready to sign in!', 'success');
+                console.log('Supabase initialized successfully');
+                
+            } catch (error) {
+                console.error('Supabase initialization failed:', error);
+                showStatus('❌ Failed to initialize: ' + error.message, 'error');
+            }
+        }
+        
+        // Sign in with Google
         async function signInWithGoogle() {
-            console.log('Sign in with Google clicked');
-            showLoading(true);
-            hideError();
+            if (!isReady) {
+                showStatus('❌ Not ready yet. Please wait...', 'error');
+                return;
+            }
             
             try {
-                console.log('Waiting for Supabase to be ready...');
+                showStatus('🔄 Signing in...', 'info');
+                document.getElementById('signin-btn').disabled = true;
                 
-                // Wait for Supabase to be ready
-                const supabaseReady = await waitForSupabase();
-                if (!supabaseReady) {
-                    throw new Error('Supabase is not ready. Please refresh the page and try again.');
-                }
-                
-                console.log('Attempting Google sign in...');
-                console.log('SupabaseAuth available:', typeof SupabaseAuth !== 'undefined');
-                console.log('Supabase available:', typeof window.supabase !== 'undefined');
-                
-                const { data, error } = await SupabaseAuth.signInWithGoogle();
-                
-                if (error) {
-                    console.error('Supabase auth error:', error);
-                    throw error;
-                }
-                
-                console.log('Google sign in successful:', data);
-                showSuccessMessage('Login successful! Redirecting...');
-                
-                // Manual redirect as backup
-                setTimeout(async () => {
-                    try {
-                        const user = await SupabaseAuth.getCurrentUser();
-                        if (user) {
-                            console.log('Manual redirect triggered');
-                            window.location.href = 'index.html';
-                        }
-                    } catch (error) {
-                        console.error('Manual redirect check failed:', error);
-                    }
-                }, 2000);
-                
-            } catch (error) {
-                console.error('Error signing in with Google:', error);
-                showError('Failed to sign in. Please try again. Error: ' + error.message);
-                showLoading(false);
-            }
-        }
-        
-        // Show loading state
-        function showLoading(show) {
-            const loading = document.getElementById('loading');
-            const signinBtn = document.querySelector('.google-signin-btn');
-            
-            if (show) {
-                loading.classList.add('show');
-                signinBtn.style.display = 'none';
-            } else {
-                loading.classList.remove('show');
-                signinBtn.style.display = 'flex';
-            }
-        }
-        
-        // Show error message
-        function showError(message) {
-            const errorDiv = document.getElementById('error-message');
-            const errorText = document.getElementById('error-text');
-            
-            errorText.textContent = message;
-            errorDiv.classList.add('show');
-            
-            // Auto-hide after 5 seconds
-            setTimeout(() => {
-                hideError();
-            }, 5000);
-        }
-        
-        // Hide error message
-        function hideError() {
-            const errorDiv = document.getElementById('error-message');
-            errorDiv.classList.remove('show');
-        }
-        
-        // Show success message
-        function showSuccessMessage(message) {
-            const successDiv = document.createElement('div');
-            successDiv.style.cssText = `
-                position: fixed;
-                top: 20px;
-                right: 20px;
-                background: var(--success-color);
-                color: white;
-                padding: 1rem 2rem;
-                border-radius: 0.5rem;
-                box-shadow: var(--shadow-lg);
-                z-index: 1000;
-                animation: slideIn 0.3s ease-out;
-            `;
-            successDiv.innerHTML = `<i class="fas fa-check"></i> ${message}`;
-            
-            document.body.appendChild(successDiv);
-            
-            setTimeout(() => {
-                successDiv.remove();
-            }, 3000);
-        }
-        
-        // Check if user is already logged in
-        async function checkExistingAuth() {
-            try {
-                // Wait for Supabase to be ready
-                const supabaseReady = await waitForSupabase();
-                if (!supabaseReady) {
-                    console.log('Supabase not ready, skipping auth check');
-                    return;
-                }
-                
-                console.log('Checking existing authentication...');
-                const user = await SupabaseAuth.getCurrentUser();
-                
-                if (user) {
-                    console.log('User already logged in:', user.email);
-                    showSuccessMessage('Already logged in! Redirecting...');
-                    setTimeout(() => {
-                        window.location.href = 'index.html';
-                    }, 1000);
-                    return;
-                } else {
-                    console.log('No user currently logged in');
-                }
-            } catch (error) {
-                console.error('Error checking existing auth:', error);
-            }
-        }
-        
-        // Listen for auth state changes
-        async function setupAuthListener() {
-            try {
-                // Wait for SupabaseAuth to be available
-                const supabaseReady = await waitForSupabase();
-                if (!supabaseReady) {
-                    console.log('Supabase not ready, skipping auth listener setup');
-                    return;
-                }
-                
-                console.log('Setting up auth state change listener...');
-                const { data: { subscription } } = await SupabaseAuth.onAuthStateChange((event, session) => {
-                    console.log('Auth state changed:', event, session?.user?.email);
-                    
-                    if (event === 'SIGNED_IN' && session) {
-                        console.log('User signed in, redirecting to dashboard');
-                        showSuccessMessage('Login successful! Redirecting...');
-                        setTimeout(() => {
-                            window.location.href = 'index.html';
-                        }, 1500);
-                    } else if (event === 'SIGNED_OUT') {
-                        console.log('User signed out');
-                    } else if (event === 'TOKEN_REFRESHED') {
-                        console.log('Token refreshed');
+                const { data, error } = await supabase.auth.signInWithOAuth({
+                    provider: 'google',
+                    options: {
+                        redirectTo: window.location.origin + '/index.html'
                     }
                 });
                 
-                console.log('Auth listener set up successfully');
+                if (error) {
+                    throw error;
+                }
+                
+                showStatus('✅ Redirecting...', 'success');
+                
             } catch (error) {
-                console.error('Error setting up auth listener:', error);
+                console.error('Sign in error:', error);
+                showStatus('❌ Sign in failed: ' + error.message, 'error');
+                document.getElementById('signin-btn').disabled = false;
             }
         }
         
-        // Setup auth listener
-        setupAuthListener();
+        // Wait for Supabase to load and initialize
+        function waitForSupabase() {
+            let attempts = 0;
+            const maxAttempts = 100; // 10 seconds
+            
+            const checkInterval = setInterval(() => {
+                attempts++;
+                
+                if (typeof window.supabase !== 'undefined') {
+                    clearInterval(checkInterval);
+                    initSupabase();
+                } else if (attempts >= maxAttempts) {
+                    clearInterval(checkInterval);
+                    showStatus('❌ Supabase failed to load after 10 seconds', 'error');
+                }
+            }, 100);
+        }
         
-        // Initialize when page loads
+        // Start when page loads
         document.addEventListener('DOMContentLoaded', function() {
-            checkExistingAuth();
+            console.log('Page loaded, waiting for Supabase...');
+            showStatus('🔄 Loading...', 'info');
+            waitForSupabase();
         });
     </script>
 </body>

@@ -3,14 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Exercises - Fitness Tracker</title>
+    <title>Page Title - Fitness Tracker</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
+        /* Basic styling - customize as needed */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
         body {
             font-family: Arial, sans-serif;
             background: #f5f5f5;
-            margin: 0;
-            padding: 0;
+            color: #333;
         }
         
         header {
@@ -63,19 +69,6 @@
             padding: 2rem;
         }
         
-        .content {
-            background: white;
-            padding: 2rem;
-            border-radius: 0.5rem;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-        
-        .loading {
-            text-align: center;
-            padding: 2rem;
-            color: #666;
-        }
-        
         .user-info {
             display: flex;
             align-items: center;
@@ -95,17 +88,30 @@
             background: rgba(239, 68, 68, 0.1);
             border-radius: 0.25rem;
         }
+        
+        .loading {
+            text-align: center;
+            padding: 2rem;
+            color: #666;
+        }
+        
+        .content {
+            background: white;
+            padding: 2rem;
+            border-radius: 0.5rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
     </style>
 </head>
 <body>
     <header>
         <nav>
-            <a href="index.html" class="logo">
+            <a href="index-final.html" class="logo">
                 <i class="fas fa-dumbbell"></i> Fitness Tracker
             </a>
             <ul class="nav-links">
-                <li><a href="index.html"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
-                <li><a href="exercises.html" class="active"><i class="fas fa-running"></i> Exercises</a></li>
+                <li><a href="index-final.html"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+                <li><a href="exercises.html"><i class="fas fa-running"></i> Exercises</a></li>
                 <li><a href="nutrition.html"><i class="fas fa-apple-alt"></i> Nutrition</a></li>
                 <li><a href="sleep.html"><i class="fas fa-bed"></i> Sleep</a></li>
                 <li><a href="goals.html"><i class="fas fa-bullseye"></i> Goals</a></li>
@@ -121,18 +127,18 @@
         </div>
         
         <div class="content" id="page-content" style="display: none;">
-            <h1>Exercises</h1>
-            <p>Track your exercise activities here.</p>
-            <p>This page is under construction. Authentication is working properly!</p>
+            <h1>Page Title</h1>
+            <p>Page content goes here...</p>
         </div>
     </main>
 
     <!-- Load Supabase UMD build -->
     <script src="https://unpkg.com/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
-    <!-- Load simple auth utility -->
-    <script src="js/auth.js"></script>
+    <!-- Load auth utilities -->
+    <script src="js/auth-utils.js"></script>
     
     <script>
+        let authManager = null;
         let currentUser = null;
         
         // Show page content
@@ -171,26 +177,32 @@
         // Logout function
         async function logout() {
             try {
-                if (window.SimpleAuth) {
-                    await window.SimpleAuth.signOut();
+                if (authManager) {
+                    await authManager.signOut();
                 }
-                window.location.href = 'login.html';
+                window.location.href = 'login-final.html';
             } catch (error) {
                 console.error('Logout failed:', error);
                 // Force redirect even if logout fails
-                window.location.href = 'login.html';
+                window.location.href = 'login-final.html';
             }
         }
         
         // Handle page load
         document.addEventListener('DOMContentLoaded', async function() {
             try {
-                console.log('Exercises page loaded');
+                console.log('Page loaded');
+                
+                // Get auth manager
+                authManager = window.AuthManager;
+                if (!authManager) {
+                    throw new Error('AuthManager not available');
+                }
                 
                 // Handle authentication
-                const isAuthenticated = await window.SimpleAuth.handlePageLoad({
+                const isAuthenticated = await authManager.handlePageLoad({
                     redirectToLogin: true,
-                    loginUrl: 'login.html',
+                    loginUrl: 'login-final.html',
                     onAuthenticated: (user) => {
                         console.log('User authenticated:', user);
                         currentUser = user;
@@ -209,7 +221,7 @@
             } catch (error) {
                 console.error('Page initialization failed:', error);
                 // Redirect to login on any error
-                window.location.href = 'login.html';
+                window.location.href = 'login-final.html';
             }
         });
     </script>
