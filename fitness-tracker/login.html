@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign In - Fitness Tracker</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <style>
+        .login-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--gradient-primary);
+            padding: 2rem;
+        }
+        
+        .login-card {
+            background: white;
+            border-radius: 1rem;
+            padding: 3rem;
+            box-shadow: var(--shadow-lg);
+            text-align: center;
+            max-width: 400px;
+            width: 100%;
+        }
+        
+        .login-logo {
+            font-size: 3rem;
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+        }
+        
+        .login-title {
+            font-size: 2rem;
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+        }
+        
+        .login-subtitle {
+            color: var(--text-secondary);
+            margin-bottom: 2rem;
+            line-height: 1.6;
+        }
+        
+        .google-signin-btn {
+            width: 100%;
+            padding: 1rem;
+            border: 2px solid #db4437;
+            border-radius: 0.5rem;
+            background: white;
+            color: #db4437;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+        }
+        
+        .google-signin-btn:hover {
+            background: #db4437;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: var(--shadow);
+        }
+        
+        .google-signin-btn i {
+            font-size: 1.2rem;
+        }
+        
+        .divider {
+            display: flex;
+            align-items: center;
+            margin: 2rem 0;
+            color: var(--text-secondary);
+        }
+        
+        .divider::before,
+        .divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: var(--border-color);
+        }
+        
+        .divider span {
+            padding: 0 1rem;
+            background: white;
+        }
+        
+        .features-preview {
+            margin-top: 2rem;
+            text-align: left;
+        }
+        
+        .features-preview h3 {
+            color: var(--text-primary);
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+        
+        .feature-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 0.75rem;
+            color: var(--text-secondary);
+        }
+        
+        .feature-item i {
+            color: var(--success-color);
+            width: 20px;
+        }
+        
+        .loading {
+            display: none;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            color: var(--primary-color);
+            font-weight: 600;
+        }
+        
+        .loading.show {
+            display: flex;
+        }
+        
+        .error-message {
+            background: #fee2e2;
+            color: #991b1b;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            margin-bottom: 1rem;
+            border-left: 4px solid var(--danger-color);
+            display: none;
+        }
+        
+        .error-message.show {
+            display: block;
+        }
+        
+        @media (max-width: 480px) {
+            .login-container {
+                padding: 1rem;
+            }
+            
+            .login-card {
+                padding: 2rem;
+            }
+            
+            .login-title {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-card">
+            <div class="login-logo">
+                <i class="fas fa-dumbbell"></i>
+            </div>
+            
+            <h1 class="login-title">Welcome to Fitness Tracker</h1>
+            <p class="login-subtitle">
+                Sign in with your Google account to start tracking your fitness journey and achieve your health goals.
+            </p>
+            
+            <div class="error-message" id="error-message">
+                <i class="fas fa-exclamation-triangle"></i>
+                <span id="error-text">An error occurred during sign in. Please try again.</span>
+            </div>
+            
+            <div id="g_id_onload"
+                 data-client_id="YOUR_GOOGLE_CLIENT_ID"
+                 data-callback="handleCredentialResponse"
+                 data-auto_prompt="false">
+            </div>
+            
+            <button class="google-signin-btn" onclick="signInWithGoogle()">
+                <i class="fab fa-google"></i>
+                Sign in with Google
+            </button>
+            
+            <div class="loading" id="loading">
+                <i class="fas fa-spinner fa-spin"></i>
+                Signing you in...
+            </div>
+            
+            <div class="divider">
+                <span>What you'll get</span>
+            </div>
+            
+            <div class="features-preview">
+                <h3>Premium Features</h3>
+                <div class="feature-item">
+                    <i class="fas fa-check"></i>
+                    <span>Complete fitness tracking dashboard</span>
+                </div>
+                <div class="feature-item">
+                    <i class="fas fa-check"></i>
+                    <span>Exercise logging and progress charts</span>
+                </div>
+                <div class="feature-item">
+                    <i class="fas fa-check"></i>
+                    <span>Nutrition monitoring with macro tracking</span>
+                </div>
+                <div class="feature-item">
+                    <i class="fas fa-check"></i>
+                    <span>Sleep pattern analysis</span>
+                </div>
+                <div class="feature-item">
+                    <i class="fas fa-check"></i>
+                    <span>Personalized goal setting and tracking</span>
+                </div>
+                <div class="feature-item">
+                    <i class="fas fa-check"></i>
+                    <span>Data synchronization across devices</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Google OAuth Configuration
+        const GOOGLE_CLIENT_ID = 'YOUR_GOOGLE_CLIENT_ID'; // Replace with your actual Google Client ID
+        
+        // Initialize Google Sign-In
+        function initializeGoogleSignIn() {
+            if (typeof google !== 'undefined' && google.accounts) {
+                google.accounts.id.initialize({
+                    client_id: GOOGLE_CLIENT_ID,
+                    callback: handleCredentialResponse,
+                    auto_select: false,
+                    cancel_on_tap_outside: true
+                });
+            }
+        }
+        
+        // Handle Google Sign-In response
+        function handleCredentialResponse(response) {
+            showLoading(true);
+            hideError();
+            
+            try {
+                // Decode the JWT token (in a real app, you'd verify this on the server)
+                const payload = JSON.parse(atob(response.credential.split('.')[1]));
+                
+                // Store user data
+                const userData = {
+                    id: payload.sub,
+                    email: payload.email,
+                    name: payload.name,
+                    picture: payload.picture,
+                    loginTime: new Date().toISOString()
+                };
+                
+                // Save to localStorage
+                localStorage.setItem('fitnessUser', JSON.stringify(userData));
+                localStorage.setItem('fitnessAuthToken', response.credential);
+                
+                // Show success message
+                showSuccessMessage('Welcome back, ' + userData.name + '!');
+                
+                // Redirect to dashboard after a short delay
+                setTimeout(() => {
+                    window.location.href = 'index.html';
+                }, 1500);
+                
+            } catch (error) {
+                console.error('Error processing Google sign-in:', error);
+                showError('Failed to process sign-in. Please try again.');
+                showLoading(false);
+            }
+        }
+        
+        // Sign in with Google
+        function signInWithGoogle() {
+            if (typeof google !== 'undefined' && google.accounts) {
+                google.accounts.id.prompt();
+            } else {
+                showError('Google Sign-In is not available. Please refresh the page and try again.');
+            }
+        }
+        
+        // Show loading state
+        function showLoading(show) {
+            const loading = document.getElementById('loading');
+            const signinBtn = document.querySelector('.google-signin-btn');
+            
+            if (show) {
+                loading.classList.add('show');
+                signinBtn.style.display = 'none';
+            } else {
+                loading.classList.remove('show');
+                signinBtn.style.display = 'flex';
+            }
+        }
+        
+        // Show error message
+        function showError(message) {
+            const errorDiv = document.getElementById('error-message');
+            const errorText = document.getElementById('error-text');
+            
+            errorText.textContent = message;
+            errorDiv.classList.add('show');
+            
+            // Auto-hide after 5 seconds
+            setTimeout(() => {
+                hideError();
+            }, 5000);
+        }
+        
+        // Hide error message
+        function hideError() {
+            const errorDiv = document.getElementById('error-message');
+            errorDiv.classList.remove('show');
+        }
+        
+        // Show success message
+        function showSuccessMessage(message) {
+            const successDiv = document.createElement('div');
+            successDiv.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: var(--success-color);
+                color: white;
+                padding: 1rem 2rem;
+                border-radius: 0.5rem;
+                box-shadow: var(--shadow-lg);
+                z-index: 1000;
+                animation: slideIn 0.3s ease-out;
+            `;
+            successDiv.innerHTML = `<i class="fas fa-check"></i> ${message}`;
+            
+            document.body.appendChild(successDiv);
+            
+            setTimeout(() => {
+                successDiv.remove();
+            }, 3000);
+        }
+        
+        // Check if user is already logged in
+        function checkExistingAuth() {
+            const userData = localStorage.getItem('fitnessUser');
+            const authToken = localStorage.getItem('fitnessAuthToken');
+            
+            if (userData && authToken) {
+                // Check if token is still valid (basic check)
+                try {
+                    const user = JSON.parse(userData);
+                    const loginTime = new Date(user.loginTime);
+                    const now = new Date();
+                    const hoursSinceLogin = (now - loginTime) / (1000 * 60 * 60);
+                    
+                    // If logged in within last 24 hours, redirect to dashboard
+                    if (hoursSinceLogin < 24) {
+                        window.location.href = 'index.html';
+                        return;
+                    } else {
+                        // Clear expired auth
+                        localStorage.removeItem('fitnessUser');
+                        localStorage.removeItem('fitnessAuthToken');
+                    }
+                } catch (error) {
+                    // Clear invalid data
+                    localStorage.removeItem('fitnessUser');
+                    localStorage.removeItem('fitnessAuthToken');
+                }
+            }
+        }
+        
+        // Initialize when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            checkExistingAuth();
+            
+            // Initialize Google Sign-In when the script loads
+            if (typeof google !== 'undefined') {
+                initializeGoogleSignIn();
+            } else {
+                // Wait for Google script to load
+                window.addEventListener('load', initializeGoogleSignIn);
+            }
+        });
+        
+        // Handle Google script load
+        window.onload = function() {
+            if (typeof google !== 'undefined') {
+                initializeGoogleSignIn();
+            }
+        };
+    </script>
+</body>
+</html>

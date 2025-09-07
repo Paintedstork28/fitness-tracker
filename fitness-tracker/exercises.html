@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exercises - Fitness Tracker</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <header>
+        <nav>
+            <div class="logo">
+                <i class="fas fa-dumbbell"></i>
+                <span>Fitness Tracker</span>
+            </div>
+            <ul class="nav-links">
+                <li><a href="index.html"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+                <li><a href="exercises.html" class="active"><i class="fas fa-running"></i> Exercises</a></li>
+                <li><a href="nutrition.html"><i class="fas fa-apple-alt"></i> Nutrition</a></li>
+                <li><a href="sleep.html"><i class="fas fa-bed"></i> Sleep</a></li>
+                <li><a href="goals.html"><i class="fas fa-bullseye"></i> Goals</a></li>
+                <li><a href="about.html"><i class="fas fa-info-circle"></i> About</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <section class="page-header">
+            <h1><i class="fas fa-running"></i> Exercise Tracking</h1>
+            <p>Log your workouts and track your fitness progress</p>
+        </section>
+
+        <section class="content-section">
+            <h2><i class="fas fa-plus-circle"></i> Log New Exercise</h2>
+            <form id="exercise-form">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="exercise-type">Exercise Type</label>
+                        <select id="exercise-type" class="form-input" required>
+                            <option value="">Select exercise...</option>
+                            <option value="cardio">Cardio</option>
+                            <option value="strength">Strength Training</option>
+                            <option value="flexibility">Flexibility</option>
+                            <option value="sports">Sports</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="exercise-name">Exercise Name</label>
+                        <input type="text" id="exercise-name" class="form-input" placeholder="e.g., Running, Push-ups" required>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="duration">Duration (minutes)</label>
+                        <input type="number" id="duration" class="form-input" placeholder="30" min="1" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="calories-burned">Calories Burned</label>
+                        <input type="number" id="calories-burned" class="form-input" placeholder="250" min="1">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="intensity">Intensity Level</label>
+                    <select id="intensity" class="form-input">
+                        <option value="low">Low</option>
+                        <option value="moderate" selected>Moderate</option>
+                        <option value="high">High</option>
+                        <option value="very-high">Very High</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="notes">Notes (optional)</label>
+                    <textarea id="notes" class="form-input" rows="3" placeholder="How did you feel? Any observations..."></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save"></i> Log Exercise
+                </button>
+            </form>
+        </section>
+
+        <section class="content-section">
+            <h2><i class="fas fa-list"></i> Today's Exercises</h2>
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Exercise</th>
+                        <th>Type</th>
+                        <th>Duration</th>
+                        <th>Calories</th>
+                        <th>Intensity</th>
+                        <th>Time</th>
+                    </tr>
+                </thead>
+                <tbody id="exercise-list">
+                    <tr>
+                        <td>Morning Run</td>
+                        <td>Cardio</td>
+                        <td>30 min</td>
+                        <td>280</td>
+                        <td>High</td>
+                        <td>7:00 AM</td>
+                    </tr>
+                    <tr>
+                        <td>Push-ups</td>
+                        <td>Strength</td>
+                        <td>15 min</td>
+                        <td>120</td>
+                        <td>Moderate</td>
+                        <td>12:30 PM</td>
+                    </tr>
+                    <tr>
+                        <td>Yoga</td>
+                        <td>Flexibility</td>
+                        <td>45 min</td>
+                        <td>150</td>
+                        <td>Low</td>
+                        <td>6:00 PM</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <section class="content-section">
+            <h2><i class="fas fa-chart-bar"></i> Weekly Progress</h2>
+            <div class="chart-container">
+                <div class="chart-placeholder">
+                    <i class="fas fa-chart-bar" style="font-size: 3rem; margin-right: 1rem;"></i>
+                    Weekly Exercise Chart
+                </div>
+            </div>
+        </section>
+
+        <section class="content-section">
+            <h2><i class="fas fa-trophy"></i> Exercise Statistics</h2>
+            <div class="dashboard-grid">
+                <div class="dashboard-card">
+                    <h3><i class="fas fa-fire"></i> Total Calories Burned</h3>
+                    <div class="value">550</div>
+                    <div class="label">Today</div>
+                </div>
+                <div class="dashboard-card">
+                    <h3><i class="fas fa-clock"></i> Total Exercise Time</h3>
+                    <div class="value">90</div>
+                    <div class="label">minutes today</div>
+                </div>
+                <div class="dashboard-card">
+                    <h3><i class="fas fa-dumbbell"></i> Workouts This Week</h3>
+                    <div class="value">5</div>
+                    <div class="label">of 7 days</div>
+                </div>
+                <div class="dashboard-card">
+                    <h3><i class="fas fa-target"></i> Goal Progress</h3>
+                    <div class="value">71%</div>
+                    <div class="label">Weekly target</div>
+                </div>
+            </div>
+        </section>
+
+        <div class="nav-buttons">
+            <a href="index.html" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> Back to Dashboard
+            </a>
+            <a href="goals.html" class="btn btn-primary">
+                <i class="fas fa-bullseye"></i> View Goals
+            </a>
+        </div>
+    </main>
+
+    <footer>
+        <p>&copy; 2024 Fitness Tracker. All rights reserved. | Stay healthy and motivated!</p>
+    </footer>
+
+    <script src="js/script.js"></script>
+</body>
+</html>

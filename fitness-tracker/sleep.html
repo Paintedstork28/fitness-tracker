@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sleep Tracking - Fitness Tracker</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <header>
+        <nav>
+            <div class="logo">
+                <i class="fas fa-dumbbell"></i>
+                <span>Fitness Tracker</span>
+            </div>
+            <ul class="nav-links">
+                <li><a href="index.html"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+                <li><a href="exercises.html"><i class="fas fa-running"></i> Exercises</a></li>
+                <li><a href="nutrition.html"><i class="fas fa-apple-alt"></i> Nutrition</a></li>
+                <li><a href="sleep.html" class="active"><i class="fas fa-bed"></i> Sleep</a></li>
+                <li><a href="goals.html"><i class="fas fa-bullseye"></i> Goals</a></li>
+                <li><a href="about.html"><i class="fas fa-info-circle"></i> About</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <section class="page-header">
+            <h1><i class="fas fa-bed"></i> Sleep Tracking</h1>
+            <p>Monitor your sleep patterns and improve your rest quality</p>
+        </section>
+
+        <section class="content-section">
+            <h2><i class="fas fa-plus-circle"></i> Log Sleep Data</h2>
+            <form id="sleep-form">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="bedtime">Bedtime</label>
+                        <input type="time" id="bedtime" class="form-input" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="wake-time">Wake Time</label>
+                        <input type="time" id="wake-time" class="form-input" required>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="sleep-quality">Sleep Quality</label>
+                        <select id="sleep-quality" class="form-input">
+                            <option value="excellent">Excellent</option>
+                            <option value="good" selected>Good</option>
+                            <option value="fair">Fair</option>
+                            <option value="poor">Poor</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="sleep-date">Date</label>
+                        <input type="date" id="sleep-date" class="form-input" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="sleep-notes">Notes (optional)</label>
+                    <textarea id="sleep-notes" class="form-input" rows="3" placeholder="How did you feel when you woke up? Any disturbances..."></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save"></i> Log Sleep
+                </button>
+            </form>
+        </section>
+
+        <section class="content-section">
+            <h2><i class="fas fa-moon"></i> Sleep Overview</h2>
+            <div class="dashboard-grid">
+                <div class="dashboard-card">
+                    <h3><i class="fas fa-clock"></i> Last Night</h3>
+                    <div class="value">7.5</div>
+                    <div class="label">hours of sleep</div>
+                    <div class="progress">
+                        <div class="progress-bar" style="width: 94%"></div>
+                    </div>
+                    <div class="mt-2">
+                        <span class="status-badge status-on-track">
+                            <i class="fas fa-check"></i> Good Sleep
+                        </span>
+                    </div>
+                </div>
+                <div class="dashboard-card">
+                    <h3><i class="fas fa-chart-line"></i> Weekly Average</h3>
+                    <div class="value">7.2</div>
+                    <div class="label">hours per night</div>
+                    <div class="progress">
+                        <div class="progress-bar" style="width: 90%"></div>
+                    </div>
+                </div>
+                <div class="dashboard-card">
+                    <h3><i class="fas fa-star"></i> Sleep Quality</h3>
+                    <div class="value">8.5</div>
+                    <div class="label">average rating</div>
+                    <div class="progress">
+                        <div class="progress-bar" style="width: 85%"></div>
+                    </div>
+                </div>
+                <div class="dashboard-card">
+                    <h3><i class="fas fa-bullseye"></i> Goal Progress</h3>
+                    <div class="value">90%</div>
+                    <div class="label">of weekly target</div>
+                    <div class="progress">
+                        <div class="progress-bar" style="width: 90%"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="content-section">
+            <h2><i class="fas fa-history"></i> Recent Sleep History</h2>
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Bedtime</th>
+                        <th>Wake Time</th>
+                        <th>Duration</th>
+                        <th>Quality</th>
+                        <th>Notes</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Today</td>
+                        <td>10:30 PM</td>
+                        <td>6:00 AM</td>
+                        <td>7.5 hours</td>
+                        <td>
+                            <span class="status-badge status-on-track">Good</span>
+                        </td>
+                        <td>Fell asleep quickly</td>
+                    </tr>
+                    <tr>
+                        <td>Yesterday</td>
+                        <td>11:00 PM</td>
+                        <td>6:30 AM</td>
+                        <td>7.5 hours</td>
+                        <td>
+                            <span class="status-badge status-on-track">Excellent</span>
+                        </td>
+                        <td>Deep sleep, felt refreshed</td>
+                    </tr>
+                    <tr>
+                        <td>2 days ago</td>
+                        <td>10:45 PM</td>
+                        <td>5:45 AM</td>
+                        <td>7 hours</td>
+                        <td>
+                            <span class="status-badge status-behind">Fair</span>
+                        </td>
+                        <td>Woke up once during night</td>
+                    </tr>
+                    <tr>
+                        <td>3 days ago</td>
+                        <td>11:15 PM</td>
+                        <td>6:15 AM</td>
+                        <td>7 hours</td>
+                        <td>
+                            <span class="status-badge status-on-track">Good</span>
+                        </td>
+                        <td>Consistent sleep</td>
+                    </tr>
+                    <tr>
+                        <td>4 days ago</td>
+                        <td>10:00 PM</td>
+                        <td>6:00 AM</td>
+                        <td>8 hours</td>
+                        <td>
+                            <span class="status-badge status-on-track">Excellent</span>
+                        </td>
+                        <td>Perfect night's sleep</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <section class="content-section">
+            <h2><i class="fas fa-chart-line"></i> Sleep Trends</h2>
+            <div class="chart-container">
+                <div class="chart-placeholder">
+                    <i class="fas fa-chart-line" style="font-size: 3rem; margin-right: 1rem;"></i>
+                    Weekly Sleep Pattern Chart
+                </div>
+            </div>
+        </section>
+
+        <section class="content-section">
+            <h2><i class="fas fa-lightbulb"></i> Sleep Tips</h2>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <i class="fas fa-moon"></i>
+                    <h3>Consistent Schedule</h3>
+                    <p>Go to bed and wake up at the same time every day, even on weekends.</p>
+                </div>
+                <div class="feature-card">
+                    <i class="fas fa-mobile-alt"></i>
+                    <h3>Limit Screen Time</h3>
+                    <p>Avoid screens 1 hour before bedtime to improve sleep quality.</p>
+                </div>
+                <div class="feature-card">
+                    <i class="fas fa-thermometer-half"></i>
+                    <h3>Cool Environment</h3>
+                    <p>Keep your bedroom cool (65-68°F) for optimal sleep conditions.</p>
+                </div>
+                <div class="feature-card">
+                    <i class="fas fa-coffee"></i>
+                    <h3>Avoid Caffeine</h3>
+                    <p>Limit caffeine intake after 2 PM to prevent sleep disruption.</p>
+                </div>
+            </div>
+        </section>
+
+        <div class="nav-buttons">
+            <a href="index.html" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> Back to Dashboard
+            </a>
+            <a href="goals.html" class="btn btn-primary">
+                <i class="fas fa-bullseye"></i> View Goals
+            </a>
+        </div>
+    </main>
+
+    <footer>
+        <p>&copy; 2024 Fitness Tracker. All rights reserved. | Stay healthy and motivated!</p>
+    </footer>
+
+    <script src="js/script.js"></script>
+</body>
+</html>

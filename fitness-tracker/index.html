@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fitness Tracker - Dashboard</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <header>
+        <nav>
+            <div class="logo">
+                <i class="fas fa-dumbbell"></i>
+                <span>Fitness Tracker</span>
+            </div>
+            <ul class="nav-links">
+                <li><a href="index.html" class="active"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+                <li><a href="exercises.html"><i class="fas fa-running"></i> Exercises</a></li>
+                <li><a href="nutrition.html"><i class="fas fa-apple-alt"></i> Nutrition</a></li>
+                <li><a href="sleep.html"><i class="fas fa-bed"></i> Sleep</a></li>
+                <li><a href="goals.html"><i class="fas fa-bullseye"></i> Goals</a></li>
+                <li><a href="about.html"><i class="fas fa-info-circle"></i> About</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <section class="page-header">
+            <h1><i class="fas fa-tachometer-alt"></i> Fitness Dashboard</h1>
+            <p class="welcome-message">Welcome back!</p>
+            <p>Track your daily progress and stay motivated on your fitness journey</p>
+        </section>
+
+        <section class="dashboard-grid">
+            <div class="dashboard-card">
+                <h3><i class="fas fa-fire"></i> Calories Today</h3>
+                <div class="value" id="calories-consumed">1,850</div>
+                <div class="label">of 2,200 goal</div>
+                <div class="progress">
+                    <div class="progress-bar" style="width: 84%"></div>
+                </div>
+                <div class="mt-2">
+                    <span class="status-badge status-on-track">
+                        <i class="fas fa-check"></i> On Track
+                    </span>
+                </div>
+            </div>
+
+            <div class="dashboard-card">
+                <h3><i class="fas fa-running"></i> Exercises Completed</h3>
+                <div class="value" id="exercises-completed">3</div>
+                <div class="label">of 5 planned</div>
+                <div class="progress">
+                    <div class="progress-bar" style="width: 60%"></div>
+                </div>
+                <div class="mt-2">
+                    <span class="status-badge status-behind">
+                        <i class="fas fa-clock"></i> Behind Schedule
+                    </span>
+                </div>
+            </div>
+
+            <div class="dashboard-card">
+                <h3><i class="fas fa-bed"></i> Sleep Last Night</h3>
+                <div class="value" id="sleep-hours">7.5</div>
+                <div class="label">hours (Goal: 8 hours)</div>
+                <div class="progress">
+                    <div class="progress-bar" style="width: 94%"></div>
+                </div>
+                <div class="mt-2">
+                    <span class="status-badge status-on-track">
+                        <i class="fas fa-check"></i> Good Sleep
+                    </span>
+                </div>
+            </div>
+
+            <div class="dashboard-card">
+                <h3><i class="fas fa-weight"></i> Weight Progress</h3>
+                <div class="value" id="current-weight">165.2</div>
+                <div class="label">lbs (-2.3 lbs this week)</div>
+                <div class="progress">
+                    <div class="progress-bar" style="width: 100%"></div>
+                </div>
+                <div class="mt-2">
+                    <span class="status-badge status-exceeded">
+                        <i class="fas fa-arrow-down"></i> Exceeding Goal
+                    </span>
+                </div>
+            </div>
+        </section>
+
+        <section class="content-section">
+            <h2><i class="fas fa-chart-line"></i> Weekly Overview</h2>
+            <div class="chart-container">
+                <div class="chart-placeholder">
+                    <i class="fas fa-chart-line" style="font-size: 3rem; margin-right: 1rem;"></i>
+                    Weekly Progress Chart
+                </div>
+            </div>
+        </section>
+
+        <section class="content-section">
+            <h2><i class="fas fa-trophy"></i> Today's Achievements</h2>
+            <div class="achievements-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem;">
+                <div class="achievement-card" style="background: var(--light-color); padding: 1rem; border-radius: 0.5rem; border-left: 4px solid var(--success-color);">
+                    <h4 style="color: var(--success-color); margin-bottom: 0.5rem;">
+                        <i class="fas fa-medal"></i> Calorie Goal
+                    </h4>
+                    <p style="color: var(--text-secondary); font-size: 0.9rem;">You're 84% to your daily calorie goal!</p>
+                </div>
+                <div class="achievement-card" style="background: var(--light-color); padding: 1rem; border-radius: 0.5rem; border-left: 4px solid var(--warning-color);">
+                    <h4 style="color: var(--warning-color); margin-bottom: 0.5rem;">
+                        <i class="fas fa-dumbbell"></i> Exercise Reminder
+                    </h4>
+                    <p style="color: var(--text-secondary); font-size: 0.9rem;">Complete 2 more exercises to reach your daily goal.</p>
+                </div>
+                <div class="achievement-card" style="background: var(--light-color); padding: 1rem; border-radius: 0.5rem; border-left: 4px solid var(--primary-color);">
+                    <h4 style="color: var(--primary-color); margin-bottom: 0.5rem;">
+                        <i class="fas fa-moon"></i> Sleep Quality
+                    </h4>
+                    <p style="color: var(--text-secondary); font-size: 0.9rem;">Great sleep last night! Keep it up.</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="content-section">
+            <h2><i class="fas fa-bullseye"></i> Quick Actions</h2>
+            <div class="nav-buttons">
+                <a href="exercises.html" class="btn btn-primary">
+                    <i class="fas fa-plus"></i> Log Exercise
+                </a>
+                <a href="nutrition.html" class="btn btn-secondary">
+                    <i class="fas fa-utensils"></i> Log Meal
+                </a>
+                <a href="sleep.html" class="btn btn-success">
+                    <i class="fas fa-bed"></i> Log Sleep
+                </a>
+                <a href="goals.html" class="btn btn-warning">
+                    <i class="fas fa-target"></i> View Goals
+                </a>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2024 Fitness Tracker. All rights reserved. | Stay healthy and motivated!</p>
+    </footer>
+
+    <script src="js/script.js"></script>
+</body>
+</html>

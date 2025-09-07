@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Goals - Fitness Tracker</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <header>
+        <nav>
+            <div class="logo">
+                <i class="fas fa-dumbbell"></i>
+                <span>Fitness Tracker</span>
+            </div>
+            <ul class="nav-links">
+                <li><a href="index.html"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+                <li><a href="exercises.html"><i class="fas fa-running"></i> Exercises</a></li>
+                <li><a href="nutrition.html"><i class="fas fa-apple-alt"></i> Nutrition</a></li>
+                <li><a href="sleep.html"><i class="fas fa-bed"></i> Sleep</a></li>
+                <li><a href="goals.html" class="active"><i class="fas fa-bullseye"></i> Goals</a></li>
+                <li><a href="about.html"><i class="fas fa-info-circle"></i> About</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <section class="page-header">
+            <h1><i class="fas fa-bullseye"></i> Goals Overview</h1>
+            <p>Track your progress and stay motivated to achieve your fitness goals</p>
+        </section>
+
+        <section class="content-section">
+            <h2><i class="fas fa-target"></i> Current Goals</h2>
+            <div class="goals-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem;">
+                <div class="goal-card" style="background: white; border-radius: 1rem; padding: 2rem; box-shadow: var(--shadow); border-left: 4px solid var(--success-color);">
+                    <div class="progress-indicator">
+                        <div class="progress-circle" style="--progress: 252deg;">
+                            <span>84%</span>
+                        </div>
+                        <div class="progress-text">
+                            <h4>Daily Calorie Goal</h4>
+                            <p>1,850 / 2,200 calories</p>
+                            <span class="status-badge status-on-track">
+                                <i class="fas fa-check"></i> On Track
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="goal-card" style="background: white; border-radius: 1rem; padding: 2rem; box-shadow: var(--shadow); border-left: 4px solid var(--warning-color);">
+                    <div class="progress-indicator">
+                        <div class="progress-circle" style="--progress: 216deg;">
+                            <span>60%</span>
+                        </div>
+                        <div class="progress-text">
+                            <h4>Daily Exercise Goal</h4>
+                            <p>3 / 5 exercises completed</p>
+                            <span class="status-badge status-behind">
+                                <i class="fas fa-clock"></i> Behind Schedule
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="goal-card" style="background: white; border-radius: 1rem; padding: 2rem; box-shadow: var(--shadow); border-left: 4px solid var(--success-color);">
+                    <div class="progress-indicator">
+                        <div class="progress-circle" style="--progress: 270deg;">
+                            <span>94%</span>
+                        </div>
+                        <div class="progress-text">
+                            <h4>Sleep Goal</h4>
+                            <p>7.5 / 8 hours</p>
+                            <span class="status-badge status-on-track">
+                                <i class="fas fa-check"></i> Good Sleep
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="goal-card" style="background: white; border-radius: 1rem; padding: 2rem; box-shadow: var(--shadow); border-left: 4px solid var(--danger-color);">
+                    <div class="progress-indicator">
+                        <div class="progress-circle" style="--progress: 360deg;">
+                            <span>100%</span>
+                        </div>
+                        <div class="progress-text">
+                            <h4>Weight Loss Goal</h4>
+                            <p>2.3 / 1.5 lbs this week</p>
+                            <span class="status-badge status-exceeded">
+                                <i class="fas fa-arrow-down"></i> Exceeding Goal
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="content-section">
+            <h2><i class="fas fa-edit"></i> Set New Goals</h2>
+            <form id="goals-form">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="goal-type">Goal Type</label>
+                        <select id="goal-type" class="form-input" required>
+                            <option value="">Select goal type...</option>
+                            <option value="calories">Daily Calorie Intake</option>
+                            <option value="exercise">Daily Exercise</option>
+                            <option value="sleep">Sleep Duration</option>
+                            <option value="weight">Weight Management</option>
+                            <option value="water">Water Intake</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="goal-target">Target Value</label>
+                        <input type="number" id="goal-target" class="form-input" placeholder="e.g., 2000" min="1" required>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="goal-unit">Unit</label>
+                        <select id="goal-unit" class="form-input">
+                            <option value="calories">Calories</option>
+                            <option value="exercises">Exercises</option>
+                            <option value="hours">Hours</option>
+                            <option value="lbs">Pounds</option>
+                            <option value="glasses">Glasses</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="goal-deadline">Target Date</label>
+                        <input type="date" id="goal-deadline" class="form-input">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="goal-description">Description</label>
+                    <textarea id="goal-description" class="form-input" rows="3" placeholder="Describe your goal and motivation..."></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-plus"></i> Add Goal
+                </button>
+            </form>
+        </section>
+
+        <section class="content-section">
+            <h2><i class="fas fa-chart-line"></i> Weekly Progress Summary</h2>
+            <div class="progress-summary" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem;">
+                <div class="summary-card" style="background: var(--light-color); padding: 1.5rem; border-radius: 0.75rem; text-align: center;">
+                    <h4 style="color: var(--success-color); margin-bottom: 0.5rem;">
+                        <i class="fas fa-fire"></i> Calories
+                    </h4>
+                    <div style="font-size: 2rem; font-weight: bold; color: var(--text-primary);">12,950</div>
+                    <div style="color: var(--text-secondary); font-size: 0.9rem;">Total this week</div>
+                    <div style="margin-top: 0.5rem;">
+                        <span class="status-badge status-on-track">+5% vs goal</span>
+                    </div>
+                </div>
+
+                <div class="summary-card" style="background: var(--light-color); padding: 1.5rem; border-radius: 0.75rem; text-align: center;">
+                    <h4 style="color: var(--warning-color); margin-bottom: 0.5rem;">
+                        <i class="fas fa-running"></i> Exercise
+                    </h4>
+                    <div style="font-size: 2rem; font-weight: bold; color: var(--text-primary);">18</div>
+                    <div style="color: var(--text-secondary); font-size: 0.9rem;">Sessions this week</div>
+                    <div style="margin-top: 0.5rem;">
+                        <span class="status-badge status-behind">-2 vs goal</span>
+                    </div>
+                </div>
+
+                <div class="summary-card" style="background: var(--light-color); padding: 1.5rem; border-radius: 0.75rem; text-align: center;">
+                    <h4 style="color: var(--success-color); margin-bottom: 0.5rem;">
+                        <i class="fas fa-bed"></i> Sleep
+                    </h4>
+                    <div style="font-size: 2rem; font-weight: bold; color: var(--text-primary);">50.4</div>
+                    <div style="color: var(--text-secondary); font-size: 0.9rem;">Hours this week</div>
+                    <div style="margin-top: 0.5rem;">
+                        <span class="status-badge status-on-track">+2.4 vs goal</span>
+                    </div>
+                </div>
+
+                <div class="summary-card" style="background: var(--light-color); padding: 1.5rem; border-radius: 0.75rem; text-align: center;">
+                    <h4 style="color: var(--danger-color); margin-bottom: 0.5rem;">
+                        <i class="fas fa-weight"></i> Weight
+                    </h4>
+                    <div style="font-size: 2rem; font-weight: bold; color: var(--text-primary);">-2.3</div>
+                    <div style="color: var(--text-secondary); font-size: 0.9rem;">Lbs this week</div>
+                    <div style="margin-top: 0.5rem;">
+                        <span class="status-badge status-exceeded">Exceeding goal</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="content-section">
+            <h2><i class="fas fa-lightbulb"></i> Recommendations</h2>
+            <div class="recommendations" style="display: grid; gap: 1rem;">
+                <div class="recommendation-card" style="background: #fef3c7; border-left: 4px solid var(--warning-color); padding: 1rem; border-radius: 0.5rem;">
+                    <h4 style="color: var(--warning-color); margin-bottom: 0.5rem;">
+                        <i class="fas fa-exclamation-triangle"></i> Exercise Goal
+                    </h4>
+                    <p style="color: var(--text-secondary);">You're behind on your daily exercise goal. Try adding a 15-minute walk or quick workout to catch up.</p>
+                </div>
+
+                <div class="recommendation-card" style="background: #dcfce7; border-left: 4px solid var(--success-color); padding: 1rem; border-radius: 0.5rem;">
+                    <h4 style="color: var(--success-color); margin-bottom: 0.5rem;">
+                        <i class="fas fa-check-circle"></i> Great Progress
+                    </h4>
+                    <p style="color: var(--text-secondary);">Your sleep and calorie goals are on track! Keep up the excellent work.</p>
+                </div>
+
+                <div class="recommendation-card" style="background: #fee2e2; border-left: 4px solid var(--danger-color); padding: 1rem; border-radius: 0.5rem;">
+                    <h4 style="color: var(--danger-color); margin-bottom: 0.5rem;">
+                        <i class="fas fa-info-circle"></i> Weight Loss
+                    </h4>
+                    <p style="color: var(--text-secondary);">You're exceeding your weight loss goal. Consider consulting with a healthcare professional if this continues.</p>
+                </div>
+            </div>
+        </section>
+
+        <div class="nav-buttons">
+            <a href="index.html" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> Back to Dashboard
+            </a>
+            <a href="exercises.html" class="btn btn-primary">
+                <i class="fas fa-running"></i> Log Exercise
+            </a>
+        </div>
+    </main>
+
+    <footer>
+        <p>&copy; 2024 Fitness Tracker. All rights reserved. | Stay healthy and motivated!</p>
+    </footer>
+
+    <script src="js/script.js"></script>
+</body>
+</html>
