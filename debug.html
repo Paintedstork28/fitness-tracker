@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Supabase Debug - Fitness Tracker</title>
+    <style>
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0;
+            color: white;
+            padding: 2rem;
+        }
+        
+        .debug-container {
+            background: white;
+            color: #1f2937;
+            border-radius: 1rem;
+            padding: 2rem;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+            max-width: 600px;
+            width: 100%;
+        }
+        
+        .debug-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            color: #1f2937;
+        }
+        
+        .debug-section {
+            margin-bottom: 1.5rem;
+            padding: 1rem;
+            background: #f9fafb;
+            border-radius: 0.5rem;
+            border-left: 4px solid #6366f1;
+        }
+        
+        .debug-section h3 {
+            margin: 0 0 0.5rem 0;
+            color: #374151;
+            font-size: 1rem;
+        }
+        
+        .debug-result {
+            font-family: monospace;
+            background: #1f2937;
+            color: #f9fafb;
+            padding: 0.5rem;
+            border-radius: 0.25rem;
+            margin: 0.5rem 0;
+            word-break: break-all;
+        }
+        
+        .status {
+            display: inline-block;
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.25rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        
+        .status.success {
+            background: #dcfce7;
+            color: #166534;
+        }
+        
+        .status.error {
+            background: #fef2f2;
+            color: #dc2626;
+        }
+        
+        .status.warning {
+            background: #fef3c7;
+            color: #d97706;
+        }
+        
+        .test-button {
+            background: #6366f1;
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            cursor: pointer;
+            margin: 0.5rem 0.5rem 0.5rem 0;
+            transition: background 0.2s;
+        }
+        
+        .test-button:hover {
+            background: #4f46e5;
+        }
+        
+        .test-button:disabled {
+            background: #9ca3af;
+            cursor: not-allowed;
+        }
+    </style>
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <script src="js/supabase-config.js"></script>
+</head>
+<body>
+    <div class="debug-container">
+        <h1 class="debug-title">🔧 Supabase Debug Console</h1>
+        
+        <div class="debug-section">
+            <h3>1. Script Loading Status</h3>
+            <div id="script-status">
+                <span class="status warning">Checking...</span>
+            </div>
+        </div>
+        
+        <div class="debug-section">
+            <h3>2. Supabase Configuration</h3>
+            <div id="config-status">
+                <span class="status warning">Checking...</span>
+            </div>
+            <div id="config-details" class="debug-result" style="display: none;"></div>
+        </div>
+        
+        <div class="debug-section">
+            <h3>3. Supabase Client Initialization</h3>
+            <div id="client-status">
+                <span class="status warning">Checking...</span>
+            </div>
+            <div id="client-details" class="debug-result" style="display: none;"></div>
+        </div>
+        
+        <div class="debug-section">
+            <h3>4. Authentication Test</h3>
+            <div id="auth-status">
+                <span class="status warning">Not tested</span>
+            </div>
+            <div id="auth-details" class="debug-result" style="display: none;"></div>
+            <button class="test-button" onclick="testAuth()">Test Authentication</button>
+        </div>
+        
+        <div class="debug-section">
+            <h3>5. Google OAuth Test</h3>
+            <div id="oauth-status">
+                <span class="status warning">Not tested</span>
+            </div>
+            <div id="oauth-details" class="debug-result" style="display: none;"></div>
+            <button class="test-button" onclick="testGoogleOAuth()">Test Google OAuth</button>
+        </div>
+        
+        <div class="debug-section">
+            <h3>6. Network Connectivity</h3>
+            <div id="network-status">
+                <span class="status warning">Checking...</span>
+            </div>
+            <div id="network-details" class="debug-result" style="display: none;"></div>
+        </div>
+    </div>
+
+    <script>
+        // Debug functions
+        function updateStatus(elementId, status, message, details = null) {
+            const element = document.getElementById(elementId);
+            const statusElement = element.querySelector('.status');
+            const detailsElement = element.querySelector('.debug-result');
+            
+            statusElement.className = `status ${status}`;
+            statusElement.textContent = message;
+            
+            if (details) {
+                detailsElement.textContent = details;
+                detailsElement.style.display = 'block';
+            }
+        }
+        
+        async function checkScriptLoading() {
+            try {
+                if (typeof createClient !== 'undefined') {
+                    updateStatus('script-status', 'success', 'Supabase script loaded');
+                } else {
+                    updateStatus('script-status', 'error', 'Supabase script not loaded');
+                }
+            } catch (error) {
+                updateStatus('script-status', 'error', 'Script loading error', error.message);
+            }
+        }
+        
+        async function checkConfiguration() {
+            try {
+                const config = {
+                    url: SUPABASE_URL,
+                    key: SUPABASE_ANON_KEY ? 'Present' : 'Missing',
+                    keyLength: SUPABASE_ANON_KEY ? SUPABASE_ANON_KEY.length : 0
+                };
+                
+                updateStatus('config-status', 'success', 'Configuration loaded');
+                updateStatus('config-details', null, null, JSON.stringify(config, null, 2));
+            } catch (error) {
+                updateStatus('config-status', 'error', 'Configuration error', error.message);
+            }
+        }
+        
+        async function checkClientInitialization() {
+            try {
+                const client = await getSupabaseClient();
+                if (client) {
+                    updateStatus('client-status', 'success', 'Client initialized');
+                    updateStatus('client-details', null, null, `Client URL: ${client.supabaseUrl}`);
+                } else {
+                    updateStatus('client-status', 'error', 'Client initialization failed');
+                }
+            } catch (error) {
+                updateStatus('client-status', 'error', 'Client error', error.message);
+            }
+        }
+        
+        async function testAuth() {
+            try {
+                updateStatus('auth-status', 'warning', 'Testing...');
+                
+                const user = await SupabaseAuth.getCurrentUser();
+                if (user) {
+                    updateStatus('auth-status', 'success', 'User authenticated');
+                    updateStatus('auth-details', null, null, `User ID: ${user.id}\nEmail: ${user.email}`);
+                } else {
+                    updateStatus('auth-status', 'warning', 'No user authenticated');
+                    updateStatus('auth-details', null, null, 'User needs to sign in');
+                }
+            } catch (error) {
+                updateStatus('auth-status', 'error', 'Auth test failed', error.message);
+            }
+        }
+        
+        async function testGoogleOAuth() {
+            try {
+                updateStatus('oauth-status', 'warning', 'Testing OAuth...');
+                
+                // Test OAuth configuration without actually signing in
+                const client = await getSupabaseClient();
+                const { data, error } = await client.auth.signInWithOAuth({
+                    provider: 'google',
+                    options: {
+                        redirectTo: 'https://paintedstork28.github.io/fitness-tracker/index.html'
+                    }
+                });
+                
+                if (error) {
+                    updateStatus('oauth-status', 'error', 'OAuth configuration error', error.message);
+                } else {
+                    updateStatus('oauth-status', 'success', 'OAuth configured correctly');
+                    updateStatus('oauth-details', null, null, 'OAuth flow should work');
+                }
+            } catch (error) {
+                updateStatus('oauth-status', 'error', 'OAuth test failed', error.message);
+            }
+        }
+        
+        async function checkNetworkConnectivity() {
+            try {
+                const urls = [
+                    'https://skomlyzhbhnqvfncgxhx.supabase.co',
+                    'https://unpkg.com/@supabase/supabase-js@2',
+                    'https://accounts.google.com'
+                ];
+                
+                const results = [];
+                for (const url of urls) {
+                    try {
+                        const response = await fetch(url, { method: 'HEAD' });
+                        results.push(`${url}: ${response.ok ? 'OK' : 'Error'}`);
+                    } catch (error) {
+                        results.push(`${url}: Failed - ${error.message}`);
+                    }
+                }
+                
+                updateStatus('network-status', 'success', 'Network test completed');
+                updateStatus('network-details', null, null, results.join('\n'));
+            } catch (error) {
+                updateStatus('network-status', 'error', 'Network test failed', error.message);
+            }
+        }
+        
+        // Run all checks when page loads
+        document.addEventListener('DOMContentLoaded', async function() {
+            await checkScriptLoading();
+            await checkConfiguration();
+            await checkClientInitialization();
+            await checkNetworkConnectivity();
+        });
+    </script>
+</body>
+</html>
