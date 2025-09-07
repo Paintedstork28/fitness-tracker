@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign In - Fitness Tracker</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .login-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 2rem;
+        }
+        
+        .login-card {
+            background: white;
+            border-radius: 1rem;
+            padding: 3rem;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            max-width: 400px;
+            width: 100%;
+        }
+        
+        .login-logo {
+            font-size: 3rem;
+            color: #6366f1;
+            margin-bottom: 1rem;
+        }
+        
+        .login-title {
+            font-size: 2rem;
+            color: #1f2937;
+            margin-bottom: 0.5rem;
+        }
+        
+        .login-subtitle {
+            color: #6b7280;
+            margin-bottom: 2rem;
+            line-height: 1.6;
+        }
+        
+        .google-signin-btn {
+            width: 100%;
+            padding: 1rem;
+            border: 2px solid #db4437;
+            border-radius: 0.5rem;
+            background: white;
+            color: #db4437;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+        }
+        
+        .google-signin-btn:hover {
+            background: #db4437;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+        
+        .google-signin-btn i {
+            font-size: 1.2rem;
+        }
+        
+        .loading {
+            display: none;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            color: #6366f1;
+            font-weight: 600;
+        }
+        
+        .loading.show {
+            display: flex;
+        }
+        
+        .error-message {
+            background: #fee2e2;
+            color: #991b1b;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            margin-bottom: 1rem;
+            border-left: 4px solid #ef4444;
+            display: none;
+        }
+        
+        .error-message.show {
+            display: block;
+        }
+        
+        .status-message {
+            background: #dbeafe;
+            color: #1e40af;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            margin-bottom: 1rem;
+            border-left: 4px solid #3b82f6;
+            display: none;
+        }
+        
+        .status-message.show {
+            display: block;
+        }
+        
+        .debug-info {
+            background: #f3f4f6;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            margin-top: 1rem;
+            text-align: left;
+            font-size: 0.875rem;
+            color: #374151;
+        }
+        
+        .debug-info h4 {
+            margin-bottom: 0.5rem;
+            color: #1f2937;
+        }
+        
+        .debug-info ul {
+            margin-left: 1rem;
+        }
+        
+        .debug-info li {
+            margin-bottom: 0.25rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-card">
+            <div class="login-logo">
+                <i class="fas fa-dumbbell"></i>
+            </div>
+            
+            <h1 class="login-title">Welcome to Fitness Tracker</h1>
+            <p class="login-subtitle">
+                Sign in with your Google account to start tracking your fitness journey.
+            </p>
+            
+            <div class="error-message" id="error-message">
+                <i class="fas fa-exclamation-triangle"></i>
+                <span id="error-text">An error occurred during sign in. Please try again.</span>
+            </div>
+            
+            <div class="status-message" id="status-message">
+                <i class="fas fa-info-circle"></i>
+                <span id="status-text">Loading...</span>
+            </div>
+            
+            <button class="google-signin-btn" onclick="signInWithGoogle()" id="signin-btn">
+                <i class="fab fa-google"></i>
+                Sign in with Google
+            </button>
+            
+            <div class="loading" id="loading">
+                <i class="fas fa-spinner fa-spin"></i>
+                Signing you in...
+            </div>
+            
+            <div class="debug-info">
+                <h4>Debug Information:</h4>
+                <ul>
+                    <li>Supabase Script: <span id="supabase-script">Loading...</span></li>
+                    <li>Configuration: <span id="config-status">Loading...</span></li>
+                    <li>Authentication: <span id="auth-status">Loading...</span></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Load Supabase directly -->
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <script src="js/supabase-config.js"></script>
+
+    <script>
+        let initializationComplete = false;
+        
+        // Update debug information
+        function updateDebugInfo() {
+            document.getElementById('supabase-script').textContent = 
+                typeof window.supabase !== 'undefined' ? '✅ Loaded' : '❌ Not loaded';
+            
+            document.getElementById('config-status').textContent = 
+                typeof SupabaseAuth !== 'undefined' ? '✅ Ready' : '❌ Not ready';
+            
+            document.getElementById('auth-status').textContent = 
+                initializationComplete ? '✅ Ready' : '⏳ Initializing...';
+        }
+        
+        // Show status message
+        function showStatus(message) {
+            const statusDiv = document.getElementById('status-message');
+            const statusText = document.getElementById('status-text');
+            
+            statusText.textContent = message;
+            statusDiv.classList.add('show');
+        }
+        
+        // Hide status message
+        function hideStatus() {
+            document.getElementById('status-message').classList.remove('show');
+        }
+        
+        // Show error message
+        function showError(message) {
+            const errorDiv = document.getElementById('error-message');
+            const errorText = document.getElementById('error-text');
+            
+            errorText.textContent = message;
+            errorDiv.classList.add('show');
+            
+            // Auto-hide after 5 seconds
+            setTimeout(() => {
+                hideError();
+            }, 5000);
+        }
+        
+        // Hide error message
+        function hideError() {
+            document.getElementById('error-message').classList.remove('show');
+        }
+        
+        // Show loading state
+        function showLoading(show) {
+            const loading = document.getElementById('loading');
+            const signinBtn = document.getElementById('signin-btn');
+            
+            if (show) {
+                loading.classList.add('show');
+                signinBtn.style.display = 'none';
+            } else {
+                loading.classList.remove('show');
+                signinBtn.style.display = 'flex';
+            }
+        }
+        
+        // Sign in with Google
+        async function signInWithGoogle() {
+            console.log('Sign in with Google clicked');
+            showLoading(true);
+            hideError();
+            hideStatus();
+            
+            try {
+                showStatus('Initializing authentication...');
+                
+                // Wait for Supabase to be ready
+                let attempts = 0;
+                while ((typeof window.supabase === 'undefined' || typeof SupabaseAuth === 'undefined') && attempts < 50) {
+                    await new Promise(resolve => setTimeout(resolve, 100));
+                    attempts++;
+                    updateDebugInfo();
+                }
+                
+                if (typeof window.supabase === 'undefined') {
+                    throw new Error('Supabase library failed to load. Please refresh the page.');
+                }
+                
+                if (typeof SupabaseAuth === 'undefined') {
+                    throw new Error('Supabase configuration failed to load. Please refresh the page.');
+                }
+                
+                showStatus('Starting Google authentication...');
+                console.log('Starting Google sign in...');
+                
+                const { data, error } = await SupabaseAuth.signInWithGoogle();
+                
+                if (error) {
+                    console.error('Supabase auth error:', error);
+                    throw error;
+                }
+                
+                console.log('Google sign in successful:', data);
+                showStatus('Login successful! Redirecting...');
+                
+                // Redirect to dashboard
+                setTimeout(() => {
+                    window.location.href = 'index.html';
+                }, 2000);
+                
+            } catch (error) {
+                console.error('Error signing in with Google:', error);
+                showError('Failed to sign in: ' + error.message);
+                showLoading(false);
+                hideStatus();
+            }
+        }
+        
+        // Initialize when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Page loaded, initializing...');
+            showStatus('Loading Supabase...');
+            
+            // Update debug info periodically
+            const debugInterval = setInterval(() => {
+                updateDebugInfo();
+                
+                // Check if everything is ready
+                if (typeof window.supabase !== 'undefined' && typeof SupabaseAuth !== 'undefined') {
+                    initializationComplete = true;
+                    hideStatus();
+                    clearInterval(debugInterval);
+                    console.log('✅ Initialization complete');
+                }
+            }, 500);
+            
+            // Timeout after 10 seconds
+            setTimeout(() => {
+                if (!initializationComplete) {
+                    showError('Initialization timeout. Please refresh the page.');
+                    clearInterval(debugInterval);
+                }
+            }, 10000);
+        });
+    </script>
+</body>
+</html>
