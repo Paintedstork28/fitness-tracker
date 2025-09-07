@@ -323,17 +323,26 @@
         }
         
         // Listen for auth state changes
-        supabase.auth.onAuthStateChange((event, session) => {
-            if (event === 'SIGNED_IN' && session) {
-                console.log('User signed in, redirecting to dashboard');
-                showSuccess('Login successful! Redirecting...');
-                setTimeout(() => {
-                    window.location.href = 'index.html';
-                }, 1500);
-            } else if (event === 'SIGNED_OUT') {
-                console.log('User signed out');
+        async function setupAuthListener() {
+            try {
+                await SupabaseAuth.onAuthStateChange((event, session) => {
+                    if (event === 'SIGNED_IN' && session) {
+                        console.log('User signed in, redirecting to dashboard');
+                        showSuccess('Login successful! Redirecting...');
+                        setTimeout(() => {
+                            window.location.href = 'index.html';
+                        }, 1500);
+                    } else if (event === 'SIGNED_OUT') {
+                        console.log('User signed out');
+                    }
+                });
+            } catch (error) {
+                console.error('Error setting up auth listener:', error);
             }
-        });
+        }
+        
+        // Setup auth listener
+        setupAuthListener();
         
         // Initialize when page loads
         document.addEventListener('DOMContentLoaded', function() {
