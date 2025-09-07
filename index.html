@@ -571,9 +571,37 @@
     
     <!-- Authentication Check -->
     <script>
+        // Wait for Supabase to be available
+        async function waitForSupabase() {
+            let attempts = 0;
+            const maxAttempts = 50; // 5 seconds
+            
+            while (attempts < maxAttempts) {
+                if (window.SupabaseAuth && window.getSupabaseClient) {
+                    console.log('SupabaseAuth is available');
+                    return true;
+                }
+                await new Promise(resolve => setTimeout(resolve, 100));
+                attempts++;
+            }
+            
+            console.error('SupabaseAuth not available after 5 seconds');
+            return false;
+        }
+        
         // Check authentication on page load
         document.addEventListener('DOMContentLoaded', async function() {
             try {
+                console.log('DOM loaded, waiting for Supabase...');
+                
+                const supabaseReady = await waitForSupabase();
+                if (!supabaseReady) {
+                    console.error('Supabase not ready, redirecting to login');
+                    window.location.href = 'login.html';
+                    return;
+                }
+                
+                console.log('Supabase ready, checking authentication...');
                 const user = await SupabaseAuth.getCurrentUser();
                 if (!user) {
                     console.log('No user found, redirecting to login');
