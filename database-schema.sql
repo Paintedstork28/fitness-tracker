@@ -1,7 +1,9 @@
--- Fitness Tracker Database Schema for Supabase
+-- Fitness Tracker Database Schema for Supabase (Idempotent Version)
 -- Run in Supabase SQL Editor
 
--- Create a user_profiles table linked to auth.users
+-- ========================================
+-- 1. Create user_profiles table
+-- ========================================
 CREATE TABLE IF NOT EXISTS user_profiles (
     id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
     display_name TEXT,
@@ -14,7 +16,9 @@ CREATE TABLE IF NOT EXISTS user_profiles (
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
--- Create exercises table
+-- ========================================
+-- 2. Create exercises table
+-- ========================================
 CREATE TABLE IF NOT EXISTS exercises (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id UUID REFERENCES user_profiles(id) ON DELETE CASCADE,
@@ -29,7 +33,9 @@ CREATE TABLE IF NOT EXISTS exercises (
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
--- Create nutrition table
+-- ========================================
+-- 3. Create nutrition table
+-- ========================================
 CREATE TABLE IF NOT EXISTS nutrition (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id UUID REFERENCES user_profiles(id) ON DELETE CASCADE,
@@ -46,13 +52,15 @@ CREATE TABLE IF NOT EXISTS nutrition (
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
--- Create sleep table
+-- ========================================
+-- 4. Create sleep table
+-- ========================================
 CREATE TABLE IF NOT EXISTS sleep (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id UUID REFERENCES user_profiles(id) ON DELETE CASCADE,
     bedtime TIME,
     wake_time TIME,
-    duration DECIMAL(4,2), -- hours with 2 decimal places
+    duration DECIMAL(4,2), -- hours
     quality TEXT CHECK (quality IN ('excellent', 'good', 'fair', 'poor')),
     notes TEXT,
     date DATE NOT NULL DEFAULT CURRENT_DATE,
@@ -60,7 +68,9 @@ CREATE TABLE IF NOT EXISTS sleep (
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
--- Create goals table
+-- ========================================
+-- 5. Create goals table
+-- ========================================
 CREATE TABLE IF NOT EXISTS goals (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id UUID REFERENCES user_profiles(id) ON DELETE CASCADE,
@@ -75,14 +85,60 @@ CREATE TABLE IF NOT EXISTS goals (
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
--- Enable Row Level Security on all tables
-ALTER TABLE exercises ENABLE ROW LEVEL SECURITY;
-ALTER TABLE nutrition ENABLE ROW LEVEL SECURITY;
-ALTER TABLE sleep ENABLE ROW LEVEL SECURITY;
-ALTER TABLE goals ENABLE ROW LEVEL SECURITY;
-ALTER TABLE user_profiles ENABLE ROW LEVEL SECURITY;
+-- ========================================
+-- 6. Enable RLS on all tables
+-- ========================================
+ALTER TABLE IF EXISTS exercises ENABLE ROW LEVEL SECURITY;
+ALTER TABLE IF EXISTS nutrition ENABLE ROW LEVEL SECURITY;
+ALTER TABLE IF EXISTS sleep ENABLE ROW LEVEL SECURITY;
+ALTER TABLE IF EXISTS goals ENABLE ROW LEVEL SECURITY;
+ALTER TABLE IF EXISTS user_profiles ENABLE ROW LEVEL SECURITY;
 
--- RLS policies for exercises
+-- ========================================
+-- 7. Drop existing policies (if any)
+-- ========================================
+DO $$
+BEGIN
+    IF EXISTS (SELECT 1 FROM pg_policies WHERE policyname LIKE 'Users can %' AND tablename = 'exercises') THEN
+        DROP POLICY IF EXISTS "Users can manage their exercises" ON exercises;
+        DROP POLICY IF EXISTS "Users can insert exercises" ON exercises;
+        DROP POLICY IF EXISTS "Users can update exercises" ON exercises;
+        DROP POLICY IF EXISTS "Users can delete exercises" ON exercises;
+    END IF;
+
+    IF EXISTS (SELECT 1 FROM pg_policies WHERE policyname LIKE 'Users can %' AND tablename = 'nutrition') THEN
+        DROP POLICY IF EXISTS "Users can manage their nutrition" ON nutrition;
+        DROP POLICY IF EXISTS "Users can insert nutrition" ON nutrition;
+        DROP POLICY IF EXISTS "Users can update nutrition" ON nutrition;
+        DROP POLICY IF EXISTS "Users can delete nutrition" ON nutrition;
+    END IF;
+
+    IF EXISTS (SELECT 1 FROM pg_policies WHERE policyname LIKE 'Users can %' AND tablename = 'sleep') THEN
+        DROP POLICY IF EXISTS "Users can manage their sleep" ON sleep;
+        DROP POLICY IF EXISTS "Users can insert sleep" ON sleep;
+        DROP POLICY IF EXISTS "Users can update sleep" ON sleep;
+        DROP POLICY IF EXISTS "Users can delete sleep" ON sleep;
+    END IF;
+
+    IF EXISTS (SELECT 1 FROM pg_policies WHERE policyname LIKE 'Users can %' AND tablename = 'goals') THEN
+        DROP POLICY IF EXISTS "Users can manage their goals" ON goals;
+        DROP POLICY IF EXISTS "Users can insert goals" ON goals;
+        DROP POLICY IF EXISTS "Users can update goals" ON goals;
+        DROP POLICY IF EXISTS "Users can delete goals" ON goals;
+    END IF;
+
+    IF EXISTS (SELECT 1 FROM pg_policies WHERE policyname LIKE 'Users can %' AND tablename = 'user_profiles') THEN
+        DROP POLICY IF EXISTS "Users can manage their profile" ON user_profiles;
+        DROP POLICY IF EXISTS "Users can insert profile" ON user_profiles;
+        DROP POLICY IF EXISTS "Users can update profile" ON user_profiles;
+        DROP POLICY IF EXISTS "Users can delete profile" ON user_profiles;
+    END IF;
+END $$;
+
+-- ========================================
+-- 8. Create RLS policies
+-- ========================================
+-- Exercises
 CREATE POLICY "Users can manage their exercises" ON exercises
   FOR SELECT USING (auth.uid() = user_id);
 CREATE POLICY "Users can insert exercises" ON exercises
@@ -92,7 +148,7 @@ CREATE POLICY "Users can update exercises" ON exercises
 CREATE POLICY "Users can delete exercises" ON exercises
   FOR DELETE USING (auth.uid() = user_id);
 
--- RLS policies for nutrition
+-- Nutrition
 CREATE POLICY "Users can manage their nutrition" ON nutrition
   FOR SELECT USING (auth.uid() = user_id);
 CREATE POLICY "Users can insert nutrition" ON nutrition
@@ -102,7 +158,7 @@ CREATE POLICY "Users can update nutrition" ON nutrition
 CREATE POLICY "Users can delete nutrition" ON nutrition
   FOR DELETE USING (auth.uid() = user_id);
 
--- RLS policies for sleep
+-- Sleep
 CREATE POLICY "Users can manage their sleep" ON sleep
   FOR SELECT USING (auth.uid() = user_id);
 CREATE POLICY "Users can insert sleep" ON sleep
@@ -112,7 +168,7 @@ CREATE POLICY "Users can update sleep" ON sleep
 CREATE POLICY "Users can delete sleep" ON sleep
   FOR DELETE USING (auth.uid() = user_id);
 
--- RLS policies for goals
+-- Goals
 CREATE POLICY "Users can manage their goals" ON goals
   FOR SELECT USING (auth.uid() = user_id);
 CREATE POLICY "Users can insert goals" ON goals
@@ -122,7 +178,7 @@ CREATE POLICY "Users can update goals" ON goals
 CREATE POLICY "Users can delete goals" ON goals
   FOR DELETE USING (auth.uid() = user_id);
 
--- RLS policies for user_profiles
+-- User profiles
 CREATE POLICY "Users can manage their profile" ON user_profiles
   FOR SELECT USING (auth.uid() = id);
 CREATE POLICY "Users can insert profile" ON user_profiles
@@ -132,7 +188,9 @@ CREATE POLICY "Users can update profile" ON user_profiles
 CREATE POLICY "Users can delete profile" ON user_profiles
   FOR DELETE USING (auth.uid() = id);
 
--- Indexes for performance
+-- ========================================
+-- 9. Indexes for performance
+-- ========================================
 CREATE INDEX IF NOT EXISTS idx_exercises_user_id ON exercises(user_id);
 CREATE INDEX IF NOT EXISTS idx_exercises_date ON exercises(date);
 CREATE INDEX IF NOT EXISTS idx_nutrition_user_id ON nutrition(user_id);
@@ -142,7 +200,9 @@ CREATE INDEX IF NOT EXISTS idx_sleep_date ON sleep(date);
 CREATE INDEX IF NOT EXISTS idx_goals_user_id ON goals(user_id);
 CREATE INDEX IF NOT EXISTS idx_goals_type ON goals(type);
 
--- Function to update updated_at timestamp
+-- ========================================
+-- 10. Function to update updated_at
+-- ========================================
 CREATE OR REPLACE FUNCTION update_updated_at_column()
 RETURNS TRIGGER AS $$
 BEGIN
@@ -151,18 +211,36 @@ BEGIN
 END;
 $$ LANGUAGE 'plpgsql';
 
--- Triggers for updated_at
+-- ========================================
+-- 11. Drop and create triggers
+-- ========================================
+DO $$
+BEGIN
+    IF EXISTS (SELECT 1 FROM pg_trigger WHERE tgname = 'trigger_update_exercises_updated_at') THEN
+        DROP TRIGGER trigger_update_exercises_updated_at ON exercises;
+    END IF;
+    IF EXISTS (SELECT 1 FROM pg_trigger WHERE tgname = 'trigger_update_nutrition_updated_at') THEN
+        DROP TRIGGER trigger_update_nutrition_updated_at ON nutrition;
+    END IF;
+    IF EXISTS (SELECT 1 FROM pg_trigger WHERE tgname = 'trigger_update_sleep_updated_at') THEN
+        DROP TRIGGER trigger_update_sleep_updated_at ON sleep;
+    END IF;
+    IF EXISTS (SELECT 1 FROM pg_trigger WHERE tgname = 'trigger_update_goals_updated_at') THEN
+        DROP TRIGGER trigger_update_goals_updated_at ON goals;
+    END IF;
+    IF EXISTS (SELECT 1 FROM pg_trigger WHERE tgname = 'trigger_update_user_profiles_updated_at') THEN
+        DROP TRIGGER trigger_update_user_profiles_updated_at ON user_profiles;
+    END IF;
+END $$;
+
+-- Create triggers
 CREATE TRIGGER trigger_update_exercises_updated_at BEFORE UPDATE ON exercises
   FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
-
 CREATE TRIGGER trigger_update_nutrition_updated_at BEFORE UPDATE ON nutrition
   FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
-
 CREATE TRIGGER trigger_update_sleep_updated_at BEFORE UPDATE ON sleep
   FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
-
 CREATE TRIGGER trigger_update_goals_updated_at BEFORE UPDATE ON goals
   FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
-
 CREATE TRIGGER trigger_update_user_profiles_updated_at BEFORE UPDATE ON user_profiles
   FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
