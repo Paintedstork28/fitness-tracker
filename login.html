@@ -6,6 +6,10 @@
     <title>Sign In - Fitness Tracker</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <script>
+        // Global flag to track loading state
+        window.supabaseLoading = true;
+        window.supabaseConfigLoaded = false;
+        
         // Load Supabase with fallbacks
         function loadSupabaseScript() {
             const sources = [
@@ -18,20 +22,23 @@
             function tryNextSource() {
                 if (currentIndex >= sources.length) {
                     console.error('All Supabase sources failed');
+                    window.supabaseLoading = false;
                     showError('Failed to load Supabase. Please check your internet connection.');
                     return;
                 }
                 
+                console.log(`Loading Supabase from: ${sources[currentIndex]}`);
                 const script = document.createElement('script');
                 script.src = sources[currentIndex];
                 
                 script.onload = function() {
-                    console.log(`Supabase loaded from: ${sources[currentIndex]}`);
+                    console.log(`✅ Supabase loaded from: ${sources[currentIndex]}`);
+                    window.supabaseLoading = false;
                     loadConfig();
                 };
                 
                 script.onerror = function() {
-                    console.log(`Failed to load from: ${sources[currentIndex]}`);
+                    console.log(`❌ Failed to load from: ${sources[currentIndex]}`);
                     currentIndex++;
                     tryNextSource();
                 };
@@ -43,16 +50,42 @@
         }
         
         function loadConfig() {
+            console.log('Loading configuration script...');
             const configScript = document.createElement('script');
-            configScript.src = 'js/supabase-config.js';
+            configScript.src = 'js/supabase-config.js?v=' + Date.now(); // Cache busting
             configScript.onload = function() {
-                console.log('Config script loaded');
+                console.log('✅ Config script loaded');
+                window.supabaseConfigLoaded = true;
+                // Wait a bit more for initialization
+                setTimeout(() => {
+                    console.log('SupabaseAuth available:', typeof SupabaseAuth !== 'undefined');
+                }, 1000);
             };
             configScript.onerror = function() {
-                console.error('Config script failed to load');
+                console.error('❌ Config script failed to load');
+                window.supabaseConfigLoaded = false;
             };
             document.head.appendChild(configScript);
         }
+        
+        // Update button state based on Supabase readiness
+        function updateButtonState() {
+            const btn = document.getElementById('signin-btn');
+            const text = document.getElementById('signin-text');
+            
+            if (window.supabaseConfigLoaded && typeof SupabaseAuth !== 'undefined') {
+                btn.disabled = false;
+                text.textContent = 'Sign in with Google';
+                btn.style.opacity = '1';
+            } else {
+                btn.disabled = true;
+                text.textContent = 'Loading...';
+                btn.style.opacity = '0.6';
+            }
+        }
+        
+        // Check button state periodically
+        setInterval(updateButtonState, 500);
         
         // Start loading
         loadSupabaseScript();
@@ -113,11 +146,16 @@
             margin-bottom: 1rem;
         }
         
-        .google-signin-btn:hover {
+        .google-signin-btn:hover:not(:disabled) {
             background: #db4437;
             color: white;
             transform: translateY(-2px);
             box-shadow: var(--shadow);
+        }
+        
+        .google-signin-btn:disabled {
+            cursor: not-allowed;
+            opacity: 0.6;
         }
         
         .google-signin-btn i {
@@ -227,9 +265,9 @@
                 <span id="error-text">An error occurred during sign in. Please try again.</span>
             </div>
             
-            <button class="google-signin-btn" onclick="signInWithGoogle()">
+            <button class="google-signin-btn" onclick="signInWithGoogle()" id="signin-btn">
                 <i class="fab fa-google"></i>
-                Sign in with Google
+                <span id="signin-text">Sign in with Google</span>
             </button>
             
             <div class="loading" id="loading">
@@ -272,6 +310,24 @@
     </div>
 
     <script>
+        // Wait for Supabase to be ready
+        async function waitForSupabase() {
+            let attempts = 0;
+            const maxAttempts = 50; // 5 seconds
+            
+            while (attempts < maxAttempts) {
+                if (window.supabaseConfigLoaded && typeof SupabaseAuth !== 'undefined') {
+                    console.log('✅ Supabase is ready');
+                    return true;
+                }
+                await new Promise(resolve => setTimeout(resolve, 100));
+                attempts++;
+            }
+            
+            console.log('❌ Supabase not ready after 5 seconds');
+            return false;
+        }
+        
         // Sign in with Google using Supabase
         async function signInWithGoogle() {
             console.log('Sign in with Google clicked');
@@ -279,18 +335,17 @@
             hideError();
             
             try {
+                console.log('Waiting for Supabase to be ready...');
+                
+                // Wait for Supabase to be ready
+                const supabaseReady = await waitForSupabase();
+                if (!supabaseReady) {
+                    throw new Error('Supabase is not ready. Please refresh the page and try again.');
+                }
+                
                 console.log('Attempting Google sign in...');
                 console.log('SupabaseAuth available:', typeof SupabaseAuth !== 'undefined');
-                
-                // Check if SupabaseAuth is available
-                if (typeof SupabaseAuth === 'undefined') {
-                    throw new Error('SupabaseAuth is not defined. Please refresh the page and try again.');
-                }
-                
-                // Check if Supabase is available
-                if (typeof window.supabase === 'undefined') {
-                    throw new Error('Supabase library is not loaded. Please check your internet connection and refresh the page.');
-                }
+                console.log('Supabase available:', typeof window.supabase !== 'undefined');
                 
                 const { data, error } = await SupabaseAuth.signInWithGoogle();
                 
