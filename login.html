@@ -93,6 +93,29 @@
             color: #1e40af;
             border: 1px solid #93c5fd;
         }
+        
+        .debug {
+            margin-top: 2rem;
+            padding: 1rem;
+            background: #f3f4f6;
+            border-radius: 0.5rem;
+            text-align: left;
+            font-size: 0.875rem;
+        }
+        
+        .debug h4 {
+            margin-bottom: 0.5rem;
+            color: #374151;
+        }
+        
+        .debug ul {
+            margin: 0;
+            padding-left: 1rem;
+        }
+        
+        .debug li {
+            margin-bottom: 0.25rem;
+        }
     </style>
 </head>
 <body>
@@ -110,10 +133,20 @@
         </button>
         
         <div class="status" id="status"></div>
+        
+        <div class="debug">
+            <h4>Debug Info:</h4>
+            <ul>
+                <li>Page Loaded: <span id="page-status">✅ Yes</span></li>
+                <li>Supabase Script: <span id="supabase-status">Loading...</span></li>
+                <li>Client Ready: <span id="client-status">No</span></li>
+                <li>Last Error: <span id="error-status">None</span></li>
+            </ul>
+        </div>
     </div>
 
-    <!-- Load Supabase UMD build -->
-    <script src="https://unpkg.com/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+    <!-- Load Supabase UMD build directly -->
+    <script src="https://unpkg.com/@supabase/supabase-js@2.57.2/dist/umd/supabase.js"></script>
     
     <script>
         // Configuration
@@ -122,6 +155,13 @@
         
         let supabase = null;
         let isReady = false;
+        
+        // Update debug info
+        function updateDebug() {
+            document.getElementById('supabase-status').textContent = 
+                typeof window.supabase !== 'undefined' ? '✅ Loaded' : '❌ Not loaded';
+            document.getElementById('client-status').textContent = isReady ? '✅ Yes' : '❌ No';
+        }
         
         // Show status message
         function showStatus(message, type = 'info') {
@@ -139,19 +179,31 @@
         // Initialize Supabase
         function initSupabase() {
             try {
+                console.log('Attempting to initialize Supabase...');
+                console.log('window.supabase:', typeof window.supabase);
+                
                 if (typeof window.supabase === 'undefined') {
                     throw new Error('Supabase script not loaded');
+                }
+                
+                console.log('window.supabase.createClient:', typeof window.supabase.createClient);
+                
+                if (typeof window.supabase.createClient !== 'function') {
+                    throw new Error('createClient function not available');
                 }
                 
                 supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
                 isReady = true;
                 
                 showStatus('✅ Ready to sign in!', 'success');
-                console.log('Supabase initialized successfully');
+                console.log('✅ Supabase initialized successfully');
+                updateDebug();
                 
             } catch (error) {
-                console.error('Supabase initialization failed:', error);
+                console.error('❌ Supabase initialization failed:', error);
                 showStatus('❌ Failed to initialize: ' + error.message, 'error');
+                document.getElementById('error-status').textContent = error.message;
+                updateDebug();
             }
         }
         
@@ -182,34 +234,48 @@
             } catch (error) {
                 console.error('Sign in error:', error);
                 showStatus('❌ Sign in failed: ' + error.message, 'error');
+                document.getElementById('error-status').textContent = error.message;
                 document.getElementById('signin-btn').disabled = false;
             }
         }
         
-        // Wait for Supabase to load and initialize
+        // Wait for Supabase to load
         function waitForSupabase() {
             let attempts = 0;
             const maxAttempts = 100; // 10 seconds
             
             const checkInterval = setInterval(() => {
                 attempts++;
+                console.log(`Checking for Supabase... attempt ${attempts}`);
+                updateDebug();
                 
                 if (typeof window.supabase !== 'undefined') {
                     clearInterval(checkInterval);
+                    console.log('Supabase found, initializing...');
                     initSupabase();
                 } else if (attempts >= maxAttempts) {
                     clearInterval(checkInterval);
+                    console.error('Supabase not found after 10 seconds');
                     showStatus('❌ Supabase failed to load after 10 seconds', 'error');
+                    document.getElementById('error-status').textContent = 'Timeout loading Supabase';
                 }
             }, 100);
         }
         
         // Start when page loads
         document.addEventListener('DOMContentLoaded', function() {
-            console.log('Page loaded, waiting for Supabase...');
+            console.log('✅ Page loaded, starting initialization...');
             showStatus('🔄 Loading...', 'info');
+            
+            // Start checking for Supabase
             waitForSupabase();
         });
+        
+        // Also try to initialize immediately (in case script loads before DOMContentLoaded)
+        if (typeof window.supabase !== 'undefined') {
+            console.log('Supabase already available, initializing immediately...');
+            initSupabase();
+        }
     </script>
 </body>
 </html>
