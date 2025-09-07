@@ -230,6 +230,13 @@
             
             try {
                 console.log('Attempting Google sign in...');
+                console.log('SupabaseAuth available:', typeof SupabaseAuth !== 'undefined');
+                
+                // Check if SupabaseAuth is available
+                if (typeof SupabaseAuth === 'undefined') {
+                    throw new Error('SupabaseAuth is not defined. Please refresh the page and try again.');
+                }
+                
                 const { data, error } = await SupabaseAuth.signInWithGoogle();
                 
                 if (error) {
@@ -309,6 +316,14 @@
         // Check if user is already logged in
         async function checkExistingAuth() {
             try {
+                // Wait a bit for Supabase to initialize
+                await new Promise(resolve => setTimeout(resolve, 1000));
+                
+                if (typeof SupabaseAuth === 'undefined') {
+                    console.log('SupabaseAuth not available yet, skipping auth check');
+                    return;
+                }
+                
                 const user = await SupabaseAuth.getCurrentUser();
                 
                 if (user) {
@@ -325,10 +340,22 @@
         // Listen for auth state changes
         async function setupAuthListener() {
             try {
+                // Wait for SupabaseAuth to be available
+                let attempts = 0;
+                while (typeof SupabaseAuth === 'undefined' && attempts < 50) {
+                    await new Promise(resolve => setTimeout(resolve, 100));
+                    attempts++;
+                }
+                
+                if (typeof SupabaseAuth === 'undefined') {
+                    console.log('SupabaseAuth not available, skipping auth listener setup');
+                    return;
+                }
+                
                 await SupabaseAuth.onAuthStateChange((event, session) => {
                     if (event === 'SIGNED_IN' && session) {
                         console.log('User signed in, redirecting to dashboard');
-                        showSuccess('Login successful! Redirecting...');
+                        showSuccessMessage('Login successful! Redirecting...');
                         setTimeout(() => {
                             window.location.href = 'index.html';
                         }, 1500);

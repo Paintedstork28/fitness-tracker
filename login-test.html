@@ -198,8 +198,11 @@
     <script>
         // Debug information
         document.addEventListener('DOMContentLoaded', function() {
-            document.getElementById('supabase-url').textContent = SUPABASE_URL;
-            document.getElementById('supabase-client').textContent = supabase ? 'Initialized' : 'Failed';
+            setTimeout(() => {
+                document.getElementById('supabase-url').textContent = typeof SUPABASE_URL !== 'undefined' ? SUPABASE_URL : 'UNDEFINED';
+                document.getElementById('supabase-client').textContent = typeof supabase !== 'undefined' ? 'Initialized' : 'Failed';
+                document.getElementById('google-oauth').textContent = typeof SupabaseAuth !== 'undefined' ? 'Ready' : 'Not Available';
+            }, 1000);
         });
         
         // Sign in with Google using Supabase
@@ -210,8 +213,14 @@
             
             try {
                 console.log('Attempting Google sign in...');
-                console.log('Supabase URL:', SUPABASE_URL);
-                console.log('Supabase client:', supabase);
+                console.log('Supabase URL:', typeof SUPABASE_URL !== 'undefined' ? SUPABASE_URL : 'UNDEFINED');
+                console.log('Supabase client:', typeof supabase !== 'undefined' ? 'Available' : 'UNDEFINED');
+                console.log('SupabaseAuth:', typeof SupabaseAuth !== 'undefined' ? 'Available' : 'UNDEFINED');
+                
+                // Check if SupabaseAuth is available
+                if (typeof SupabaseAuth === 'undefined') {
+                    throw new Error('SupabaseAuth is not defined. Please check if the Supabase configuration is loading properly.');
+                }
                 
                 const { data, error } = await SupabaseAuth.signInWithGoogle();
                 

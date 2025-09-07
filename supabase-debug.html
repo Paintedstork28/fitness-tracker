@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Supabase Debug - Fitness Tracker</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 2rem;
+            background: #f5f5f5;
+        }
+        .debug-container {
+            background: white;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .debug-item {
+            margin: 1rem 0;
+            padding: 1rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .success { border-color: #4CAF50; background: #f1f8e9; }
+        .error { border-color: #f44336; background: #ffebee; }
+        .warning { border-color: #ff9800; background: #fff3e0; }
+        .info { border-color: #2196F3; background: #e3f2fd; }
+        button {
+            background: #2196F3;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 0.5rem 0.5rem 0.5rem 0;
+        }
+        button:hover { background: #1976D2; }
+        .log {
+            background: #f5f5f5;
+            padding: 1rem;
+            border-radius: 4px;
+            font-family: monospace;
+            white-space: pre-wrap;
+            max-height: 300px;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+        }
+        .status {
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="debug-container">
+        <h1>🔧 Supabase Debug Console</h1>
+        
+        <div class="debug-item" id="script-status">
+            <div class="status">Script Loading Status</div>
+            <p id="script-text">Checking...</p>
+        </div>
+        
+        <div class="debug-item" id="config-status">
+            <div class="status">Configuration Status</div>
+            <p id="config-text">Checking...</p>
+        </div>
+        
+        <div class="debug-item" id="client-status">
+            <div class="status">Client Initialization</div>
+            <p id="client-text">Checking...</p>
+        </div>
+        
+        <div class="debug-item" id="auth-status">
+            <div class="status">Authentication Classes</div>
+            <p id="auth-text">Checking...</p>
+        </div>
+        
+        <div class="debug-item">
+            <div class="status">Actions</div>
+            <button onclick="runFullDiagnostic()">Run Full Diagnostic</button>
+            <button onclick="testAuth()">Test Authentication</button>
+            <button onclick="clearLog()">Clear Log</button>
+            <button onclick="window.location.href='login.html'">Go to Login</button>
+        </div>
+        
+        <div class="debug-item">
+            <div class="status">Console Output</div>
+            <div class="log" id="console-log"></div>
+        </div>
+    </div>
+
+    <!-- Load Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabase-config.js"></script>
+
+    <script>
+        let logContainer = document.getElementById('console-log');
+        
+        function log(message) {
+            const timestamp = new Date().toLocaleTimeString();
+            logContainer.textContent += `[${timestamp}] ${message}\n`;
+            logContainer.scrollTop = logContainer.scrollHeight;
+            console.log(message);
+        }
+        
+        function clearLog() {
+            logContainer.textContent = '';
+        }
+        
+        function updateStatus(elementId, status, message) {
+            const element = document.getElementById(elementId);
+            const textElement = element.querySelector('p');
+            
+            element.className = `debug-item ${status}`;
+            textElement.textContent = message;
+        }
+        
+        async function checkScriptLoading() {
+            log('Checking script loading...');
+            
+            if (typeof createClient !== 'undefined') {
+                updateStatus('script-status', 'success', '✅ Supabase script loaded successfully');
+                log('✅ createClient is available');
+                return true;
+            } else {
+                updateStatus('script-status', 'error', '❌ Supabase script not loaded');
+                log('❌ createClient is not available');
+                return false;
+            }
+        }
+        
+        async function checkConfiguration() {
+            log('Checking configuration...');
+            
+            try {
+                if (typeof SUPABASE_URL !== 'undefined' && typeof SUPABASE_ANON_KEY !== 'undefined') {
+                    updateStatus('config-status', 'success', '✅ Configuration loaded');
+                    log(`✅ URL: ${SUPABASE_URL}`);
+                    log(`✅ Key: ${SUPABASE_ANON_KEY.substring(0, 20)}...`);
+                    return true;
+                } else {
+                    updateStatus('config-status', 'error', '❌ Configuration missing');
+                    log('❌ SUPABASE_URL or SUPABASE_ANON_KEY not defined');
+                    return false;
+                }
+            } catch (error) {
+                updateStatus('config-status', 'error', '❌ Configuration error');
+                log(`❌ Configuration error: ${error.message}`);
+                return false;
+            }
+        }
+        
+        async function checkClientInitialization() {
+            log('Checking client initialization...');
+            
+            try {
+                if (typeof getSupabaseClient !== 'undefined') {
+                    const client = await getSupabaseClient();
+                    if (client) {
+                        updateStatus('client-status', 'success', '✅ Client initialized successfully');
+                        log('✅ Supabase client created');
+                        return true;
+                    } else {
+                        updateStatus('client-status', 'error', '❌ Client initialization failed');
+                        log('❌ Client is null');
+                        return false;
+                    }
+                } else {
+                    updateStatus('client-status', 'error', '❌ getSupabaseClient not available');
+                    log('❌ getSupabaseClient function not found');
+                    return false;
+                }
+            } catch (error) {
+                updateStatus('client-status', 'error', '❌ Client error');
+                log(`❌ Client error: ${error.message}`);
+                return false;
+            }
+        }
+        
+        async function checkAuthClasses() {
+            log('Checking authentication classes...');
+            
+            const classes = ['SupabaseAuth', 'FitnessDatabase', 'RealtimeSubscriptions'];
+            let allAvailable = true;
+            
+            for (const className of classes) {
+                if (typeof window[className] !== 'undefined') {
+                    log(`✅ ${className} is available`);
+                } else {
+                    log(`❌ ${className} is not available`);
+                    allAvailable = false;
+                }
+            }
+            
+            if (allAvailable) {
+                updateStatus('auth-status', 'success', '✅ All authentication classes available');
+            } else {
+                updateStatus('auth-status', 'error', '❌ Some authentication classes missing');
+            }
+            
+            return allAvailable;
+        }
+        
+        async function testAuth() {
+            log('Testing authentication...');
+            
+            try {
+                if (typeof SupabaseAuth !== 'undefined') {
+                    const user = await SupabaseAuth.getCurrentUser();
+                    if (user) {
+                        log(`✅ User authenticated: ${user.email}`);
+                    } else {
+                        log('⚠️ No user currently signed in');
+                    }
+                } else {
+                    log('❌ SupabaseAuth not available');
+                }
+            } catch (error) {
+                log(`❌ Auth test failed: ${error.message}`);
+            }
+        }
+        
+        async function runFullDiagnostic() {
+            log('Running full diagnostic...');
+            clearLog();
+            
+            await checkScriptLoading();
+            await checkConfiguration();
+            await checkClientInitialization();
+            await checkAuthClasses();
+            
+            log('Diagnostic completed');
+        }
+        
+        // Run diagnostic when page loads
+        document.addEventListener('DOMContentLoaded', async function() {
+            log('Page loaded, starting diagnostic...');
+            await runFullDiagnostic();
+        });
+    </script>
+</body>
+</html>
