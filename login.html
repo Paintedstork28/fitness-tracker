@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sign In - Fitness Tracker</title>
-    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/style.css?v=2">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
     <script src="js/supabase-config.js"></script>
@@ -225,22 +225,26 @@
     <script>
         // Sign in with Google using Supabase
         async function signInWithGoogle() {
+            console.log('Sign in with Google clicked');
             showLoading(true);
             hideError();
             
             try {
+                console.log('Attempting Google sign in...');
                 const { data, error } = await SupabaseAuth.signInWithGoogle();
                 
                 if (error) {
+                    console.error('Supabase auth error:', error);
                     throw error;
                 }
                 
+                console.log('Google sign in successful:', data);
                 // The redirect will happen automatically
                 showSuccessMessage('Redirecting to dashboard...');
                 
             } catch (error) {
                 console.error('Error signing in with Google:', error);
-                showError('Failed to sign in. Please try again.');
+                showError('Failed to sign in. Please try again. Error: ' + error.message);
                 showLoading(false);
             }
         }
